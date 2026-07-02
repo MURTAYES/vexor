@@ -120,62 +120,62 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| AUTH-04 | TBD | Pending |
-| AUTH-05 | TBD | Pending |
-| PROD-01 | TBD | Pending |
-| PROD-02 | TBD | Pending |
-| PROD-03 | TBD | Pending |
-| PROD-04 | TBD | Pending |
-| PROD-05 | TBD | Pending |
-| PROD-06 | TBD | Pending |
-| PROD-07 | TBD | Pending |
-| INV-01 | TBD | Pending |
-| INV-02 | TBD | Pending |
-| INV-03 | TBD | Pending |
-| INV-04 | TBD | Pending |
-| INV-05 | TBD | Pending |
-| BLDR-01 | TBD | Pending |
-| BLDR-02 | TBD | Pending |
-| BLDR-03 | TBD | Pending |
-| BLDR-04 | TBD | Pending |
-| BLDR-05 | TBD | Pending |
-| BLDR-06 | TBD | Pending |
-| BLDR-07 | TBD | Pending |
-| BLDR-08 | TBD | Pending |
-| BLDR-09 | TBD | Pending |
-| ORD-01 | TBD | Pending |
-| ORD-02 | TBD | Pending |
-| ORD-03 | TBD | Pending |
-| ORD-04 | TBD | Pending |
-| ORD-05 | TBD | Pending |
-| ORD-06 | TBD | Pending |
-| ORD-07 | TBD | Pending |
-| ORD-08 | TBD | Pending |
-| ORD-09 | TBD | Pending |
-| ORD-10 | TBD | Pending |
-| PDF-01 | TBD | Pending |
-| PDF-02 | TBD | Pending |
-| PDF-03 | TBD | Pending |
-| VIEW-01 | TBD | Pending |
-| VIEW-02 | TBD | Pending |
-| VIEW-03 | TBD | Pending |
-| VIEW-04 | TBD | Pending |
-| VIEW-05 | TBD | Pending |
-| VIEW-06 | TBD | Pending |
-| INFRA-01 | TBD | Pending |
-| INFRA-02 | TBD | Pending |
-| INFRA-03 | TBD | Pending |
-| INFRA-04 | TBD | Pending |
-| INFRA-05 | TBD | Pending |
-| INFRA-06 | TBD | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| PROD-01 | Phase 2 | Pending |
+| PROD-02 | Phase 2 | Pending |
+| PROD-03 | Phase 2 | Pending |
+| PROD-04 | Phase 2 | Pending |
+| PROD-05 | Phase 2 | Pending |
+| PROD-06 | Phase 2 | Pending |
+| PROD-07 | Phase 1 | Pending |
+| INV-01 | Phase 2 | Pending |
+| INV-02 | Phase 1 | Pending |
+| INV-03 | Phase 2 | Pending |
+| INV-04 | Phase 5 | Pending |
+| INV-05 | Phase 5 | Pending |
+| BLDR-01 | Phase 3 | Pending |
+| BLDR-02 | Phase 3 | Pending |
+| BLDR-03 | Phase 3 | Pending |
+| BLDR-04 | Phase 3 | Pending |
+| BLDR-05 | Phase 3 | Pending |
+| BLDR-06 | Phase 3 | Pending |
+| BLDR-07 | Phase 3 | Pending |
+| BLDR-08 | Phase 3 | Pending |
+| BLDR-09 | Phase 3 | Pending |
+| ORD-01 | Phase 2 | Pending |
+| ORD-02 | Phase 2 | Pending |
+| ORD-03 | Phase 2 | Pending |
+| ORD-04 | Phase 2 | Pending |
+| ORD-05 | Phase 4 | Pending |
+| ORD-06 | Phase 4 | Pending |
+| ORD-07 | Phase 4 | Pending |
+| ORD-08 | Phase 4 | Pending |
+| ORD-09 | Phase 2 | Pending |
+| ORD-10 | Phase 4 | Pending |
+| PDF-01 | Phase 4 | Pending |
+| PDF-02 | Phase 4 | Pending |
+| PDF-03 | Phase 4 | Pending |
+| VIEW-01 | Phase 3 | Pending |
+| VIEW-02 | Phase 3 | Pending |
+| VIEW-03 | Phase 5 | Pending |
+| VIEW-04 | Phase 3 | Pending |
+| VIEW-05 | Phase 3 | Pending |
+| VIEW-06 | Phase 3 | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Pending |
+| INFRA-06 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 44 total
-- Mapped to phases: 0
-- Unmapped: 44 ⚠️
+- Mapped to phases: 44
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-02*
