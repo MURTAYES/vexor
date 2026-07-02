@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neutral text-black font-body;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+
+  input, select, textarea {
+    @apply border-2 border-black rounded-none shadow-brutal focus:outline-none focus:shadow-brutalHover transition-shadow duration-200 bg-white;
+  }
+
+  button {
+    @apply border-2 border-black rounded-none shadow-brutal font-heading uppercase tracking-wider transition-all duration-200;
+  }
+  
+  button:active {
+    @apply translate-x-1 translate-y-1 shadow-none;
+  }
+}
