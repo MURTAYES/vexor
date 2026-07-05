@@ -47,19 +47,31 @@ const Checkout = () => {
         }))
       };
       
-      const res = await checkoutMutation.mutateAsync(payload);
+      const result = await checkoutMutation.mutateAsync(payload);
       clearInvoice();
-      // In a real app we'd redirect to a success page or the invoice detail view
-      alert(`Invoice ${res.invoice_number} Created Successfully!`);
+      alert(`Invoice ${result.invoiceNumber} created! PDF downloaded.`);
       navigate('/dashboard');
     } catch (err) {
+      // When responseType is 'blob', error responses need special handling
       if (err.response?.status === 409) {
-        setCheckoutError({
-          message: 'Stock Conflict',
-          details: err.response.data.details
-        });
+        try {
+          const text = await err.response.data.text();
+          const errorData = JSON.parse(text);
+          setCheckoutError({
+            message: 'Stock Conflict',
+            details: errorData.details
+          });
+        } catch {
+          setCheckoutError({ message: 'Stock conflict — please refresh and try again' });
+        }
       } else {
-        setCheckoutError({ message: err.response?.data?.error || 'Checkout failed' });
+        try {
+          const text = await err.response?.data?.text?.();
+          const errorData = text ? JSON.parse(text) : {};
+          setCheckoutError({ message: errorData.error || 'Checkout failed' });
+        } catch {
+          setCheckoutError({ message: 'Checkout failed' });
+        }
       }
     }
   };

@@ -8,6 +8,10 @@ const lineItemSchema = new mongoose.Schema(
       ref: 'Product',
       required: true,
     },
+    product_name: {
+      type: String,
+      required: true,
+    },
     sku_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'SKU',

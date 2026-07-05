@@ -3,6 +3,8 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const SKU = require('../models/SKU');
 const { clearCacheKeys } = require('./catalogController');
+const { generateInvoicePDF } = require('../services/pdfService');
+const { sendInvoiceEmail } = require('../services/emailService');
 const logger = require('../utils/logger');
 const { z } = require('zod');
 
@@ -73,6 +75,7 @@ const checkout = async (req, res) => {
       finalLineItems.push({
         product_id: product._id,
         sku_id: sku._id,
+        product_name: product.club_country_name,
         size: sku.size,
         quantity: item.quantity,
         snapshot_price,
@@ -98,7 +101,25 @@ const checkout = async (req, res) => {
     // Clear cache since stock was decremented
     await clearCacheKeys('catalog:*');
 
-    res.status(201).json({ message: 'Order confirmed successfully', invoice_number: order.invoice_number, order_id: order._id });
+    // Generate PDF (ORD-05)
+    const pdfBuffer = await generateInvoicePDF(order);
+
+    // Fire-and-forget email dispatch (ORD-07) — never blocks the response
+    if (customer_email) {
+      sendInvoiceEmail(order, pdfBuffer).catch((err) => {
+        logger.error({ err, invoice: order.invoice_number }, 'Fire-and-forget email error (should not reach here)');
+      });
+    }
+
+    // Return PDF as response (ORD-06)
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="vexor-invoice-${order.invoice_number}.pdf"`,
+      'X-Invoice-Number': order.invoice_number,
+      'X-Order-Id': order._id.toString(),
+      'Access-Control-Expose-Headers': 'X-Invoice-Number, X-Order-Id, Content-Disposition',
+    });
+    res.status(201).end(pdfBuffer);
   } catch (error) {
     await session.abortTransaction();
     if (error.isConflict) {
@@ -111,6 +132,75 @@ const checkout = async (req, res) => {
     res.status(500).json({ error: error.message || 'Internal server error during checkout' });
   } finally {
     session.endSession();
+  }
+};
+
+const getOrders = async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const total = await Order.countDocuments();
+
+    res.json({ orders, total, page, limit });
+  } catch (error) {
+    logger.error({ err: error }, 'Error fetching orders');
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+};
+
+const getOrderPdf = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const pdfBuffer = await generateInvoicePDF(order);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="vexor-invoice-${order.invoice_number}.pdf"`,
+    });
+    res.end(pdfBuffer);
+  } catch (error) {
+    logger.error({ err: error }, 'Error generating PDF');
+    res.status(500).json({ error: 'Failed to generate PDF' });
+  }
+};
+
+const resendEmail = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    if (!order.customer_email) {
+      return res.status(400).json({ error: 'No customer email on this order' });
+    }
+
+    const pdfBuffer = await generateInvoicePDF(order);
+    await sendInvoiceEmail(order, pdfBuffer);
+
+    // Reload to get the updated email_sent_at / email_error
+    const updatedOrder = await Order.findById(req.params.id).lean();
+
+    res.json({
+      message: updatedOrder.email_sent_at ? 'Email sent successfully' : 'Email dispatch attempted',
+      email_sent_at: updatedOrder.email_sent_at,
+      email_error: updatedOrder.email_error,
+    });
+  } catch (error) {
+    logger.error({ err: error }, 'Error resending email');
+    res.status(500).json({ error: 'Failed to resend email' });
   }
 };
 
@@ -157,5 +247,8 @@ const voidOrder = async (req, res) => {
 
 module.exports = {
   checkout,
+  getOrders,
+  getOrderPdf,
+  resendEmail,
   voidOrder,
 };
