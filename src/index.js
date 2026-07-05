@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', catalogRoutes);
 app.use('/api/products', productRoutes); // Mutations on /api/products
 app.use('/api/orders', orderRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 const startServer = async () => {
   // Wait for connections before accepting requests

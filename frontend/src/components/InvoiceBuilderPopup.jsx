@@ -80,8 +80,12 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
                     ${isOutOfStock ? 'opacity-30 cursor-not-allowed bg-neutral' : 'hover:bg-accent hover:text-white'}
                     ${isSelected ? 'bg-black text-white shadow-brutal' : 'bg-white'}
                   `}
-                >
-                  {sku.size}
+                  <span className="flex flex-col items-center leading-none">
+                    <span>{sku.size}</span>
+                    <span className="text-[10px] mt-1 opacity-80">
+                      {isOutOfStock ? '(OOS)' : (sku.stock_available <= 3 ? '(LOW)' : '')}
+                    </span>
+                  </span>
                 </button>
               );
             })

@@ -1,11 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import apiClient from '../api/client';
-import { LogOut, PackageSearch, ReceiptText, PlusCircle } from 'lucide-react';
+import { useDashboardStats } from '../api/dashboard';
+import { LogOut, PackageSearch, ReceiptText, PlusCircle, AlertTriangle, TrendingUp, Hash } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const logoutStore = useAuthStore((state) => state.logout);
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
 
   const handleLogout = async () => {
     try {
@@ -34,6 +36,42 @@ const Dashboard = () => {
           </button>
         </div>
 
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          
+          <div className="bg-white border-2 border-black p-6 shadow-brutal flex items-center justify-between">
+            <div>
+              <p className="font-bold text-muted uppercase text-sm mb-1">Today's Invoices</p>
+              <div className="font-heading text-4xl text-black">
+                {statsLoading ? '-' : stats?.today_invoices || 0}
+              </div>
+            </div>
+            <TrendingUp className="w-12 h-12 text-accent opacity-20" />
+          </div>
+
+          <div className={`bg-white border-2 border-black p-6 shadow-brutal flex items-center justify-between ${stats?.low_stock_alerts > 0 ? 'border-accent' : ''}`}>
+            <div>
+              <p className={`font-bold uppercase text-sm mb-1 ${stats?.low_stock_alerts > 0 ? 'text-accent' : 'text-muted'}`}>Low-Stock Alerts</p>
+              <div className={`font-heading text-4xl ${stats?.low_stock_alerts > 0 ? 'text-accent' : 'text-black'}`}>
+                {statsLoading ? '-' : stats?.low_stock_alerts || 0}
+              </div>
+            </div>
+            <AlertTriangle className={`w-12 h-12 opacity-20 ${stats?.low_stock_alerts > 0 ? 'text-accent opacity-100' : 'text-muted'}`} />
+          </div>
+
+          <div className="bg-white border-2 border-black p-6 shadow-brutal flex items-center justify-between">
+            <div>
+              <p className="font-bold text-muted uppercase text-sm mb-1">Total SKUs</p>
+              <div className="font-heading text-4xl text-black">
+                {statsLoading ? '-' : stats?.total_skus || 0}
+              </div>
+            </div>
+            <Hash className="w-12 h-12 text-black opacity-20" />
+          </div>
+
+        </div>
+
+        {/* Navigation Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           <Link to="/checkout" className="block group">

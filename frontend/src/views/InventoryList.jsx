@@ -12,8 +12,11 @@ const SkuBadge = ({ sku }) => {
   else if (isLowStock) colorClass = "bg-yellow-100 text-yellow-700 border-yellow-500";
   
   return (
-    <div className={`text-xs border-2 border-black font-bold px-2 py-1 ${colorClass}`}>
-      {sku.size}: {sku.stock_available}
+    <div className={`text-xs border-2 border-black font-bold px-2 py-1 flex items-center justify-between ${colorClass}`}>
+      <span>{sku.size}</span>
+      <span className="ml-2">
+        {isOutOfStock ? 'OUT OF STOCK' : `${sku.stock_available}${isLowStock ? ' (LOW)' : ''}`}
+      </span>
     </div>
   );
 };
