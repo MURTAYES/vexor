@@ -28,15 +28,9 @@ const Layout = ({ children }) => {
       {/* Side Navigation */}
       <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-[240px] z-50 bg-surface-light border-r border-border-muted shadow-brutal overflow-y-auto">
         <div className="p-6 border-b border-border-muted">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-vexor-black flex items-center justify-center">
-              <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>speed</span>
-            </div>
-            <div>
-              <h1 className="font-headline text-2xl font-bold italic text-primary uppercase leading-tight">VEXOR</h1>
-              <p className="font-body text-[10px] font-bold text-secondary uppercase tracking-wider">PERFORMANCE OPS</p>
-            </div>
-          </div>
+          <Link to="/" className="block w-full">
+            <img src="/src/assets/horizontal_black.png" alt="Vexor Logo" className="w-full h-auto object-contain" />
+          </Link>
         </div>
 
         <div className="p-4 flex-1 flex flex-col">

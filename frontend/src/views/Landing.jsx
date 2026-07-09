@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import LoginModal from '../components/LoginModal';
 
 const Landing = () => {
+  const [showLogin, setShowLogin] = useState(false);
+
   return (
     <div className="min-h-screen bg-surface-light font-body overflow-x-hidden selection:bg-vexor-orange selection:text-white flex flex-col">
       {/* Navigation */}
@@ -16,15 +19,15 @@ const Landing = () => {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <Link to="/login" className="font-headline text-lg italic uppercase font-bold text-secondary hover:text-vexor-black transition-colors">
+            <button onClick={() => setShowLogin(true)} className="font-headline text-lg italic uppercase font-bold text-secondary hover:text-vexor-black transition-colors">
               System Login
-            </Link>
-            <Link 
-              to="/login"
+            </button>
+            <button 
+              onClick={() => setShowLogin(true)}
               className="bg-vexor-orange text-white px-8 py-3 font-headline text-lg italic uppercase font-bold border-2 border-transparent hover:border-vexor-black hover:shadow-[4px_4px_0px_#000000] transition-all hover:-translate-y-1"
             >
               Access Terminal
-            </Link>
+            </button>
           </div>
         </div>
       </nav>
@@ -49,13 +52,13 @@ const Landing = () => {
             </p>
 
             <div className="flex flex-wrap gap-4 pt-4">
-              <Link 
-                to="/login"
+              <button 
+                onClick={() => setShowLogin(true)}
                 className="bg-vexor-black text-white px-10 py-5 font-headline text-2xl italic uppercase font-bold border-2 border-vexor-black hover:bg-vexor-orange hover:border-vexor-orange transition-colors flex items-center gap-3 shadow-[6px_6px_0px_#E5E5E5] hover:shadow-[6px_6px_0px_#000000]"
               >
                 Launch Ops
                 <span className="material-symbols-outlined">rocket_launch</span>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -139,6 +142,8 @@ const Landing = () => {
           </p>
         </div>
       </footer>
+
+      <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
 
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes scroll {
