@@ -7,11 +7,13 @@ const redisUri = process.env.REDIS_URI || 'redis://localhost:6379';
 const redisClient = new Redis(redisUri, {
   lazyConnect: true,
   retryStrategy(times) {
-    // Retry connection after delays, max out at 3 seconds
-    const delay = Math.min(times * 50, 3000);
-    return delay;
+    if (times > 5) {
+      logger.warn('Redis: max retries reached, giving up. Cache features disabled.');
+      return null; // Stop retrying
+    }
+    return Math.min(times * 200, 3000);
   },
-  maxRetriesPerRequest: 3, // Don't block requests indefinitely if Redis is down
+  maxRetriesPerRequest: 1, // Fail fast on individual requests
 });
 
 redisClient.on('connect', () => {

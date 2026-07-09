@@ -89,7 +89,7 @@ const counterSchema = new mongoose.Schema({
 const Counter = mongoose.models.Counter || mongoose.model('Counter', counterSchema);
 
 // Pre-save hook to generate VX-YYYYMMDD-NNN
-orderSchema.pre('save', async function (next) {
+orderSchema.pre('save', async function () {
   if (this.isNew) {
     const today = new Date();
     const year = today.getFullYear();
@@ -97,24 +97,17 @@ orderSchema.pre('save', async function (next) {
     const day = String(today.getDate()).padStart(2, '0');
     const datePrefix = `${year}${month}${day}`;
 
-    try {
-      // Find the counter for today and increment it atomically
-      const counterId = `invoice_${datePrefix}`;
-      const counter = await Counter.findByIdAndUpdate(
-        counterId,
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true } // upsert creates it if it doesn't exist
-      );
+    // Find the counter for today and increment it atomically
+    const counterId = `invoice_${datePrefix}`;
+    const counter = await Counter.findByIdAndUpdate(
+      counterId,
+      { $inc: { seq: 1 } },
+      { returnDocument: 'after', upsert: true }
+    );
 
-      // Pad sequence to 3 digits (e.g. 001)
-      const seqStr = String(counter.seq).padStart(3, '0');
-      this.invoice_number = `VX-${datePrefix}-${seqStr}`;
-      next();
-    } catch (error) {
-      next(error);
-    }
-  } else {
-    next();
+    // Pad sequence to 3 digits (e.g. 001)
+    const seqStr = String(counter.seq).padStart(3, '0');
+    this.invoice_number = `VX-${datePrefix}-${seqStr}`;
   }
 });
 

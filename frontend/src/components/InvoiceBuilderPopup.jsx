@@ -80,6 +80,7 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
                     ${isOutOfStock ? 'opacity-30 cursor-not-allowed bg-neutral' : 'hover:bg-accent hover:text-white'}
                     ${isSelected ? 'bg-black text-white shadow-brutal' : 'bg-white'}
                   `}
+                >
                   <span className="flex flex-col items-center leading-none">
                     <span>{sku.size}</span>
                     <span className="text-[10px] mt-1 opacity-80">

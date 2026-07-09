@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import useAuthStore from './store/authStore';
+import Layout from './components/Layout';
 import Login from './views/Login';
 import Dashboard from './views/Dashboard';
 import InventoryList from './views/InventoryList';
@@ -25,14 +26,16 @@ function App() {
             path="/*" 
             element={
               <ProtectedRoute>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/inventory" element={<InventoryList />} />
-                  <Route path="/inventory/new" element={<AddProduct />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/invoices" element={<InvoiceList />} />
-                </Routes>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/inventory" element={<InventoryList />} />
+                    <Route path="/inventory/new" element={<AddProduct />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/invoices" element={<InvoiceList />} />
+                  </Routes>
+                </Layout>
               </ProtectedRoute>
             } 
           />

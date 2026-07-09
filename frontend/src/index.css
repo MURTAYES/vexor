@@ -1,25 +1,119 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Core brand colors */
+  --color-vexor-orange: #FF5500;
+  --color-vexor-black: #000000;
+
+  /* Surface system */
+  --color-surface: #fff8f6;
+  --color-surface-light: #FFFFFF;
+  --color-surface-neutral: #F2F2F2;
+  --color-surface-dim: #f2d4ca;
+  --color-surface-bright: #fff8f6;
+  --color-surface-container: #ffe9e3;
+  --color-surface-container-low: #fff1ed;
+  --color-surface-container-high: #ffe2d9;
+  --color-surface-container-highest: #fbdcd3;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #fbdcd3;
+
+  /* Semantic colors */
+  --color-primary: #a63500;
+  --color-primary-container: #d04400;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #fffbff;
+  --color-secondary: #5e5e5e;
+  --color-secondary-container: #e2e2e2;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #646464;
+  --color-tertiary: #005ea3;
+  --color-tertiary-container: #0077cd;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #fdfcff;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-on-surface: #281812;
+  --color-on-surface-variant: #5c4037;
+  --color-on-background: #281812;
+  --color-outline: #907065;
+  --color-outline-variant: #e5beb2;
+  --color-border-muted: #595959;
+  --color-inverse-surface: #3e2c26;
+  --color-inverse-on-surface: #ffede8;
+  --color-inverse-primary: #ffb59c;
+  --color-shadow-brutal: #E5E5E5;
+
+  /* Legacy compat */
+  --color-accent: #FF5500;
+  --color-neutral: #F2F2F2;
+  --color-muted: #595959;
+
+  /* Fonts */
+  --font-headline: "Oswald", sans-serif;
+  --font-body: "Roboto Condensed", sans-serif;
+  --font-heading: "Oswald", sans-serif;
+
+  /* Shadows */
+  --shadow-brutal: 4px 4px 0px #E5E5E5;
+  --shadow-brutalHover: 6px 6px 0px #FF5500;
+
+  /* Border radius */
+  --radius-none: 0px;
+  --radius-DEFAULT: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
+}
+
+/* Brutal card utility */
+.brutal-card {
+  background-color: #FFFFFF;
+  border: 1px solid #F2F2F2;
+  box-shadow: 4px 4px 0px #E5E5E5;
+  transition: border-color 0.15s ease;
+}
+.brutal-card:hover {
+  border-color: #000000;
+}
+
+/* Sparkline */
+.sparkline {
+  stroke: #FF5500;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: square;
+}
+
+/* Material Symbols sizing */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
 
 @layer base {
   body {
-    @apply bg-neutral text-black font-body;
+    @apply bg-surface-light text-on-surface font-body antialiased;
+    font-family: "Roboto Condensed", sans-serif;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight;
+    font-family: "Oswald", sans-serif;
+    @apply tracking-tight;
   }
 
   input, select, textarea {
-    @apply border-2 border-black rounded-none shadow-brutal focus:outline-none focus:shadow-brutalHover transition-shadow duration-200 bg-white;
+    @apply border-2 border-black rounded-none shadow-brutal focus:outline-none focus:border-vexor-orange transition-all duration-200 bg-white;
   }
 
   button {
-    @apply border-2 border-black rounded-none shadow-brutal font-heading uppercase tracking-wider transition-all duration-200;
+    @apply rounded-none transition-all duration-200;
   }
-  
+
   button:active {
-    @apply translate-x-1 translate-y-1 shadow-none;
+    @apply translate-x-0.5 translate-y-0.5;
+  }
+
+  ::selection {
+    @apply bg-vexor-orange text-white;
   }
 }
