@@ -9,23 +9,29 @@ const useInvoiceStore = create((set) => ({
   setCustomerDetails: (details) => set((state) => ({ ...state, ...details })),
   
   addItem: (item) => set((state) => {
-    // If the exact same SKU is added, just increment quantity
-    const existingIndex = state.line_items.findIndex(i => i.sku_id === item.sku_id);
-    if (existingIndex >= 0) {
-      const newItems = [...state.line_items];
-      // Bound it by the stock available (checked in UI before calling, but safe here too)
-      newItems[existingIndex].quantity += item.quantity;
-      return { line_items: newItems };
-    }
-    return { line_items: [...state.line_items, item] };
+    const _localId = item._localId || crypto.randomUUID();
+    const lineTotal = item.quantity * item.unitPrice;
+    const newItem = { ...item, _localId, lineTotal };
+    return { line_items: [...state.line_items, newItem] };
   }),
   
-  removeItem: (skuId) => set((state) => ({
-    line_items: state.line_items.filter(i => i.sku_id !== skuId)
-  })),
-  
-  updateItemQuantity: (skuId, quantity) => set((state) => ({
-    line_items: state.line_items.map(i => i.sku_id === skuId ? { ...i, quantity } : i)
+  updateItem: (_localId, changes) => set((state) => {
+    return {
+      line_items: state.line_items.map(item => {
+        if (item._localId === _localId) {
+          const updatedItem = { ...item, ...changes };
+          if (changes.quantity !== undefined || changes.unitPrice !== undefined) {
+            updatedItem.lineTotal = updatedItem.quantity * updatedItem.unitPrice;
+          }
+          return updatedItem;
+        }
+        return item;
+      })
+    };
+  }),
+
+  removeItem: (_localId) => set((state) => ({
+    line_items: state.line_items.filter(i => i._localId !== _localId)
   })),
   
   clearInvoice: () => set({ customer_name: '', customer_phone: '', customer_email: '', line_items: [] }),
