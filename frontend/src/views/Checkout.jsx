@@ -5,7 +5,7 @@ import { useCheckout } from '../api/orders';
 import InvoiceBuilderPopup from '../components/InvoiceBuilderPopup';
 import { Plus, Trash2, AlertCircle } from 'lucide-react';
 
-const Checkout = () => {
+const Checkout = ({ isModal = false, onClose }) => {
   const [showBuilder, setShowBuilder] = useState(false);
   const [checkoutError, setCheckoutError] = useState(null);
   const navigate = useNavigate();
@@ -50,7 +50,11 @@ const Checkout = () => {
       const result = await checkoutMutation.mutateAsync(payload);
       clearInvoice();
       alert(`Invoice ${result.invoiceNumber} created! PDF downloaded.`);
-      navigate('/dashboard');
+      if (isModal && onClose) {
+        onClose();
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       // When responseType is 'blob', error responses need special handling
       if (err.response?.status === 409) {
@@ -77,8 +81,8 @@ const Checkout = () => {
   };
 
   return (
-    <div className="p-8 bg-neutral min-h-screen">
-      <div className="max-w-6xl mx-auto flex gap-8">
+    <div className={isModal ? "" : "p-8 bg-neutral min-h-screen"}>
+      <div className={`${isModal ? 'w-full' : 'max-w-6xl mx-auto'} flex flex-col xl:flex-row gap-8`}>
         
         {/* Left Column: Customer & Line Items */}
         <div className="flex-1 space-y-8">

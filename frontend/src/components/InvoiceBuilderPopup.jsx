@@ -154,7 +154,7 @@ const InvoiceBuilderPopup = ({ onClose }) => {
   const { data, isLoading } = useSearchProducts(debouncedTerm);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4">
       <div className="bg-white border-2 border-black shadow-brutal w-full max-w-2xl h-[80vh] flex flex-col relative overflow-hidden">
         
         {selectedProduct ? (
