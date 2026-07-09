@@ -1,10 +1,17 @@
+import { useState } from 'react';
 import { useDashboardStats } from '../api/dashboard';
 import { useInvoices } from '../api/orders';
 import { downloadOrderPdf } from '../api/orders';
+import Modal from '../components/Modal';
+import AddProductForm from '../components/AddProductForm';
+import Checkout from './Checkout';
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: ordersData, isLoading: ordersLoading } = useInvoices(1, 5);
+
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [showNewInvoice, setShowNewInvoice] = useState(false);
 
   const orders = ordersData?.orders || [];
 
@@ -91,12 +98,18 @@ const Dashboard = () => {
             <span className="material-symbols-outlined text-vexor-black">bolt</span>
           </div>
           <div className="flex flex-col gap-2">
-            <a href="/checkout" className="block w-full py-2 bg-vexor-orange text-white font-headline text-base italic uppercase font-bold text-center hover:shadow-[4px_4px_0px_#000000] transition-shadow border-2 border-transparent hover:border-vexor-black">
+            <button
+              onClick={() => setShowNewInvoice(true)}
+              className="w-full py-2 bg-vexor-orange text-white font-headline text-base italic uppercase font-bold text-center hover:shadow-[4px_4px_0px_#000000] transition-shadow border-2 border-transparent hover:border-vexor-black"
+            >
               NEW INVOICE
-            </a>
-            <a href="/inventory/new" className="block w-full py-2 bg-vexor-black text-white font-headline text-base italic uppercase font-bold text-center hover:bg-vexor-orange transition-colors">
+            </button>
+            <button
+              onClick={() => setShowAddProduct(true)}
+              className="w-full py-2 bg-vexor-black text-white font-headline text-base italic uppercase font-bold text-center hover:bg-vexor-orange transition-colors"
+            >
               ADD PRODUCT
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -167,6 +180,24 @@ const Dashboard = () => {
           </table>
         </div>
       </div>
+
+      {/* Add Product Modal */}
+      <Modal
+        isOpen={showAddProduct}
+        onClose={() => setShowAddProduct(false)}
+        title="ADD NEW PRODUCT"
+      >
+        <AddProductForm onSuccess={() => setShowAddProduct(false)} />
+      </Modal>
+
+      {/* New Invoice Modal */}
+      <Modal
+        isOpen={showNewInvoice}
+        onClose={() => setShowNewInvoice(false)}
+        title="NEW INVOICE"
+      >
+        <Checkout isModal onClose={() => setShowNewInvoice(false)} />
+      </Modal>
     </div>
   );
 };

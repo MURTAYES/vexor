@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 import LoginModal from './LoginModal';
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 
 const JERSEYS = [
   {
