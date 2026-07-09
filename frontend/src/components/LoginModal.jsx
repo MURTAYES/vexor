@@ -13,6 +13,7 @@ const loginSchema = z.object({
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
+  const [showAdminWarning, setShowAdminWarning] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
@@ -31,6 +32,12 @@ const LoginModal = ({ isOpen, onClose }) => {
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to login');
     }
+  };
+
+  const handleRestrictedAction = (e) => {
+    e.preventDefault();
+    setShowAdminWarning(true);
+    setTimeout(() => setShowAdminWarning(false), 3000);
   };
 
   return (
@@ -55,8 +62,8 @@ const LoginModal = ({ isOpen, onClose }) => {
         <div className="flex flex-col items-center mb-8">
           <img 
             alt="Vexor Logo" 
-            className="w-16 h-16 object-cover mb-4" 
-            src="https://lh3.googleusercontent.com/aida/AP1WRLu5NH1Aft_Q6c2dTd6WRD2P2hWTseYajYXBVVfRjcCVU9EeIiICMOU2X_iG9JJ-fUP0KuJFP3l34hNbcJTAacyUUIIXr45As1vzSnd7qxg7r07xh5qmdRG-UNtPM39BV-YHY1qllNE0Q1yWP-wpdhJ_wLvn_PF_0EhRWxlwZgyHwGieh_icdTvANWFMjHUC4pMRx_tzt8YbCB4sFT16menYGgRSDbSd0k7asa8QIk4LfLFs2-Lm68w7TfM" 
+            className="w-16 h-16 object-contain mb-4" 
+            src="/src/assets/logo.png" 
           />
           <h1 className="font-headline text-4xl md:text-5xl uppercase italic text-on-surface font-bold">Sign In</h1>
           <p className="font-body text-base text-on-surface-variant mt-2 text-center">Access your high-performance workspace.</p>
@@ -65,6 +72,13 @@ const LoginModal = ({ isOpen, onClose }) => {
         {error && (
           <div className="bg-error/10 border-2 border-error text-error p-3 mb-6 font-bold uppercase text-sm text-center">
             {error}
+          </div>
+        )}
+
+        {showAdminWarning && (
+          <div className="bg-vexor-orange text-white p-3 mb-6 font-bold uppercase text-sm text-center animate-bounce shadow-brutal border-2 border-vexor-black">
+            <span className="material-symbols-outlined inline-block align-middle mr-2">warning</span>
+            Access restricted. Please contact your system administrator.
           </div>
         )}
 
@@ -109,7 +123,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               <input className="form-checkbox h-4 w-4 text-primary bg-surface-neutral border-border-muted focus:ring-primary focus:ring-offset-0 rounded-none" type="checkbox"/>
               <span className="ml-2 font-body text-sm text-on-surface-variant">Remember me</span>
             </label>
-            <a className="font-headline text-sm font-bold text-primary hover:text-primary-container transition-colors" href="#">Forgot Password?</a>
+            <a onClick={handleRestrictedAction} className="font-headline text-sm font-bold text-primary hover:text-primary-container transition-colors cursor-pointer">Forgot Password?</a>
           </div>
           
           {/* Submit Button */}
@@ -130,19 +144,15 @@ const LoginModal = ({ isOpen, onClose }) => {
         
         {/* Social Logins */}
         <div className="mt-8 space-y-4">
-          <button className="w-full border-2 border-on-surface bg-transparent text-on-surface font-headline text-sm font-bold uppercase py-3 flex items-center justify-center hover:bg-surface-neutral transition-colors rounded-none">
+          <button onClick={handleRestrictedAction} type="button" className="w-full border-2 border-on-surface bg-transparent text-on-surface font-headline text-sm font-bold uppercase py-3 flex items-center justify-center hover:bg-surface-neutral transition-colors rounded-none">
             <span className="material-symbols-outlined mr-2">login</span>
             Continue with Google
-          </button>
-          <button className="w-full border-2 border-on-surface bg-transparent text-on-surface font-headline text-sm font-bold uppercase py-3 flex items-center justify-center hover:bg-surface-neutral transition-colors rounded-none">
-            <span className="material-symbols-outlined mr-2">code</span>
-            Continue with GitHub
           </button>
         </div>
         
         <div className="mt-8 text-center">
           <p className="font-body text-sm text-on-surface-variant">
-            New to Vexor? <a className="font-headline font-bold text-on-surface hover:text-primary underline transition-colors" href="#">Create Account</a>
+            New to Vexor? <a onClick={handleRestrictedAction} className="font-headline font-bold text-on-surface hover:text-primary underline transition-colors cursor-pointer">Create Account</a>
           </p>
         </div>
       </div>
