@@ -4,7 +4,6 @@ import apiClient from '../api/client';
 
 const navItems = [
   { path: '/dashboard', label: 'Overview', icon: 'dashboard' },
-  { path: '/checkout', label: 'New Invoice', icon: 'receipt_long' },
   { path: '/inventory', label: 'Inventory', icon: 'inventory_2' },
   { path: '/invoices', label: 'Orders', icon: 'shopping_cart' },
 ];
@@ -19,22 +18,22 @@ const Layout = ({ children }) => {
       await apiClient.post('/auth/logout');
     } finally {
       logoutStore();
-      navigate('/login');
+      navigate('/');
     }
   };
 
   return (
     <div className="flex min-h-screen bg-surface-light font-body overflow-x-hidden">
       {/* Side Navigation */}
-      <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-[240px] z-50 bg-surface-light border-r border-border-muted shadow-brutal overflow-y-auto">
-        <div className="p-6 border-b border-border-muted">
+      <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-[240px] z-50 bg-[#FFFFFF] border-r-[3px] border-vexor-black shadow-[4px_0px_0px_#0A0A0A] overflow-y-auto" style={{ borderRadius: 0 }}>
+        <div className="p-6 border-b-[3px] border-vexor-black">
           <Link to="/" className="block w-full">
             <img src="/src/assets/horizontal_black.png" alt="Vexor Logo" className="w-full h-auto object-contain" />
           </Link>
         </div>
 
         <div className="p-4 flex-1 flex flex-col">
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-3">
             {navItems.map(item => {
               const isActive = location.pathname === item.path || 
                 (item.path === '/dashboard' && location.pathname === '/');
@@ -42,11 +41,12 @@ const Layout = ({ children }) => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 font-headline text-lg italic uppercase font-bold border-2 transition-colors duration-150 ${
+                    className={`flex items-center gap-3 px-4 py-[12px] font-headline text-[1.05rem] italic uppercase font-[900] border-[2px] transition-all duration-150 ${
                       isActive
-                        ? 'bg-primary text-on-primary border-on-background'
-                        : 'text-secondary border-transparent hover:bg-surface-neutral hover:text-on-background hover:border-border-muted'
+                        ? 'bg-vexor-orange text-white border-vexor-black shadow-[3px_3px_0px_#0A0A0A]'
+                        : 'text-secondary border-transparent hover:bg-surface-neutral hover:text-vexor-black hover:border-vexor-black hover:shadow-[3px_3px_0px_#E5E5E5]'
                     }`}
+                    style={{ borderRadius: 0 }}
                   >
                     <span className="material-symbols-outlined">{item.icon}</span>
                     {item.label}

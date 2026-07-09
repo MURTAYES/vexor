@@ -1,7 +1,9 @@
 const React = require('react');
-const { Document, Page, View, Text, StyleSheet, renderToBuffer, Font } = require('@react-pdf/renderer');
+const { Document, Page, View, Text, Image, StyleSheet, renderToBuffer } = require('@react-pdf/renderer');
+const path = require('path');
 
-// Register no custom fonts — Helvetica is built-in and guaranteed
+// Resolve the logo path to logo.png
+const LOGO_PATH = path.resolve(__dirname, '../../frontend/src/assets/logo.png');
 
 const styles = StyleSheet.create({
   page: {
@@ -9,182 +11,264 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: 'Helvetica',
     color: '#000000',
+    backgroundColor: '#FFFFFF',
   },
-  // Header
-  headerBar: {
+
+  // Helpers for brutalist shadows
+  shadow8: {
     backgroundColor: '#000000',
-    padding: 16,
-    marginBottom: 20,
+    paddingRight: 8,
+    paddingBottom: 8,
+    marginBottom: 24,
+  },
+  shadow4: {
+    backgroundColor: '#E5E5E5',
+    paddingRight: 4,
+    paddingBottom: 4,
+    marginBottom: 24,
+  },
+  shadow4Black: {
+    backgroundColor: '#000000',
+    paddingRight: 4,
+    paddingBottom: 4,
+    marginBottom: 24,
+  },
+
+  // 1. Header Box
+  headerBox: {
+    backgroundColor: '#FFFFFF',
+    border: '4px solid #000000',
+    padding: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
-  shopName: {
-    fontSize: 28,
+  logoContainer: {
+    width: 140,
+    marginBottom: 16,
+  },
+  logoImage: {
+    width: '100%',
+  },
+  invoiceTitle: {
+    fontSize: 32,
     fontFamily: 'Helvetica-Bold',
-    color: '#FF5500',
-    letterSpacing: 4,
+    color: '#000000',
+    textTransform: 'uppercase',
   },
-  invoiceLabel: {
-    fontSize: 10,
+  headerRight: {
+    alignItems: 'flex-end',
+  },
+  txnBadge: {
+    backgroundColor: '#000000',
     color: '#FFFFFF',
-    textAlign: 'right',
-  },
-  invoiceNumber: {
-    fontSize: 14,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
     fontFamily: 'Helvetica-Bold',
-    color: '#FFFFFF',
-    textAlign: 'right',
-  },
-  // Customer section
-  customerSection: {
-    marginBottom: 20,
-    padding: 12,
-    backgroundColor: '#F2F2F2',
-    border: '1px solid #E5E5E5',
-  },
-  customerTitle: {
     fontSize: 10,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  headerMetaText: {
     fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    color: '#595959', // text-secondary
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+
+  // 2. Customer Info (Bill To)
+  customerBox: {
+    backgroundColor: '#FFFFFF',
+    border: '2px solid #000000',
+    padding: 24,
+  },
+  customerBadge: {
+    backgroundColor: '#000000',
+    color: '#FFFFFF',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  customerName: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 12,
+    color: '#000000',
     textTransform: 'uppercase',
     marginBottom: 6,
-    letterSpacing: 1,
+  },
+  customerDetail: {
+    fontFamily: 'Helvetica',
+    fontSize: 11,
     color: '#595959',
+    marginBottom: 4,
   },
-  customerRow: {
-    flexDirection: 'row',
-    marginBottom: 3,
+  customerDivider: {
+    borderTop: '1px solid #E5E5E5',
+    marginTop: 8,
+    paddingTop: 8,
   },
-  customerLabel: {
-    width: 60,
+  customerAccount: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 9,
-    color: '#595959',
-  },
-  customerValue: {
-    flex: 1,
     fontSize: 10,
+    color: '#000000',
+    textTransform: 'uppercase',
   },
-  // Table
+
+  // 3. Line Items Table
+  tableBox: {
+    backgroundColor: '#FFFFFF',
+    border: '2px solid #000000',
+  },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#000000',
-    padding: 8,
   },
   tableHeaderCell: {
     color: '#FFFFFF',
     fontFamily: 'Helvetica-Bold',
     fontSize: 9,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   tableRow: {
     flexDirection: 'row',
-    padding: 8,
+    backgroundColor: '#FFFFFF',
     borderBottom: '1px solid #E5E5E5',
   },
   tableRowAlt: {
     flexDirection: 'row',
-    padding: 8,
+    backgroundColor: '#F9F9F9', // surface-neutral
     borderBottom: '1px solid #E5E5E5',
-    backgroundColor: '#F2F2F2',
   },
   tableCell: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     fontSize: 10,
+    color: '#000000',
   },
-  // Column widths
-  colItem: { width: '35%' },
-  colSize: { width: '12%', textAlign: 'center' },
-  colQty: { width: '12%', textAlign: 'center' },
-  colPrice: { width: '20%', textAlign: 'right' },
-  colSubtotal: { width: '21%', textAlign: 'right' },
-  // Special instruction box (PDF-02, PDF-03)
-  specialInstructionBox: {
-    backgroundColor: '#FFFDE7',
-    borderLeft: '3px solid #FF5500',
-    padding: 8,
-    marginTop: 4,
-    marginBottom: 4,
-    marginLeft: 10,
-  },
-  specialInstructionLabel: {
-    fontSize: 7,
+  tableCellBold: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 10,
     fontFamily: 'Helvetica-Bold',
+    color: '#000000',
     textTransform: 'uppercase',
-    color: '#FF5500',
-    marginBottom: 2,
-    letterSpacing: 0.5,
   },
-  specialInstructionText: {
+  
+  // Columns Widths
+  colSku: { width: '20%' },
+  colItem: { width: '35%' },
+  colSize: { width: '10%' },
+  colQty: { width: '10%', textAlign: 'center' },
+  colPrice: { width: '12%', textAlign: 'right' },
+  colTotal: { width: '13%', textAlign: 'right' },
+
+  // Instruction Box in Table
+  instructionRow: {
+    backgroundColor: '#FFFFFF',
+    borderBottom: '1px solid #E5E5E5',
+    padding: 12,
+    paddingLeft: 16,
+  },
+  instructionText: {
     fontSize: 9,
     fontFamily: 'Helvetica-Oblique',
-    color: '#333333',
-  },
-  // Totals
-  totalsSection: {
-    marginTop: 16,
-    alignItems: 'flex-end',
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingVertical: 4,
-    width: 200,
-  },
-  totalLabel: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
     color: '#595959',
-    width: 100,
   },
-  totalValue: {
+  instructionLabel: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 11,
-    textAlign: 'right',
-    width: 100,
+    color: '#FF5500',
   },
-  grandTotalRow: {
+
+  // 4. Totals & Notes Section (Flex Row)
+  bottomSection: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingVertical: 8,
-    width: 200,
-    borderTop: '2px solid #000000',
-    marginTop: 4,
+    justifyContent: 'space-between',
+  },
+  notesBox: {
+    width: '58%',
+    backgroundColor: '#FAFAFA',
+    border: '2px dashed #000000',
+    padding: 24,
+  },
+  notesTitle: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  notesContent: {
+    fontSize: 9,
+    fontFamily: 'Helvetica',
+    color: '#595959',
+    lineHeight: 1.5,
+    textTransform: 'uppercase',
+  },
+  calcContainer: {
+    width: '38%',
+  },
+  calcBox: {
+    backgroundColor: '#FFFFFF',
+    border: '2px solid #000000',
+    padding: 24,
+  },
+  calcRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  calcLabel: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    color: '#595959',
+  },
+  calcValue: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    color: '#595959',
+  },
+  calcLabelDark: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    color: '#000000',
+  },
+  calcValueDark: {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    color: '#000000',
+  },
+  grandTotalDivider: {
+    borderTop: '4px solid #000000',
+    marginTop: 8,
+    paddingTop: 16,
   },
   grandTotalLabel: {
     fontFamily: 'Helvetica-Bold',
-    fontSize: 16,
+    fontSize: 12,
     textTransform: 'uppercase',
-    letterSpacing: 2,
     color: '#000000',
-    width: 100,
+    marginBottom: 8,
   },
   grandTotalValue: {
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 16,
-    color: '#FF5500',
-    textAlign: 'right',
-    width: 100,
-  },
-  // Footer
-  footer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 40,
-    right: 40,
-    textAlign: 'center',
-    fontSize: 9,
-    color: '#595959',
-    borderTop: '1px solid #E5E5E5',
-    paddingTop: 10,
-  },
+    fontFamily: 'Helvetica-BoldOblique',
+    fontSize: 24,
+    color: '#FF5500', // vexor-orange
+  }
 });
 
 const formatDate = (date) => {
   const d = new Date(date);
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
 };
 
 const formatCurrency = (amount) => `৳${Number(amount).toLocaleString('en-IN')}`;
@@ -192,95 +276,120 @@ const formatCurrency = (amount) => `৳${Number(amount).toLocaleString('en-IN')}
 const InvoiceDocument = ({ order }) => {
   return React.createElement(Document, null,
     React.createElement(Page, { size: 'A4', style: styles.page },
-      // Header bar
-      React.createElement(View, { style: styles.headerBar },
-        React.createElement(Text, { style: styles.shopName }, 'VEXOR'),
-        React.createElement(View, null,
-          React.createElement(Text, { style: styles.invoiceLabel }, 'INVOICE'),
-          React.createElement(Text, { style: styles.invoiceNumber }, order.invoice_number),
-          React.createElement(Text, { style: styles.invoiceLabel }, formatDate(order.createdAt))
-        )
-      ),
 
-      // Customer section
-      React.createElement(View, { style: styles.customerSection },
-        React.createElement(Text, { style: styles.customerTitle }, 'Customer Details'),
-        React.createElement(View, { style: styles.customerRow },
-          React.createElement(Text, { style: styles.customerLabel }, 'Name:'),
-          React.createElement(Text, { style: styles.customerValue }, order.customer_name)
-        ),
-        React.createElement(View, { style: styles.customerRow },
-          React.createElement(Text, { style: styles.customerLabel }, 'Phone:'),
-          React.createElement(Text, { style: styles.customerValue }, order.customer_phone)
-        ),
-        order.customer_email ? React.createElement(View, { style: styles.customerRow },
-          React.createElement(Text, { style: styles.customerLabel }, 'Email:'),
-          React.createElement(Text, { style: styles.customerValue }, order.customer_email)
-        ) : null
-      ),
-
-      // Table header
-      React.createElement(View, { style: styles.tableHeader },
-        React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colItem } }, 'Item'),
-        React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colSize } }, 'Size'),
-        React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colQty } }, 'Qty'),
-        React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colPrice } }, 'Unit Price'),
-        React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colSubtotal } }, 'Subtotal')
-      ),
-
-      // Table rows
-      ...order.line_items.map((item, idx) => {
-        const lineTotal = item.snapshot_price * item.quantity;
-        const rowStyle = idx % 2 === 0 ? styles.tableRow : styles.tableRowAlt;
-
-        const elements = [
-          React.createElement(View, { style: rowStyle, key: `row-${idx}` },
-            React.createElement(Text, { style: { ...styles.tableCell, ...styles.colItem } },
-              item.product_name || `Product`
+      // 1. Header block
+      React.createElement(View, { style: styles.shadow8 },
+        React.createElement(View, { style: styles.headerBox },
+          React.createElement(View, null,
+            React.createElement(View, { style: styles.logoContainer },
+              React.createElement(Image, { src: LOGO_PATH, style: styles.logoImage })
             ),
-            React.createElement(Text, { style: { ...styles.tableCell, ...styles.colSize } }, item.size),
-            React.createElement(Text, { style: { ...styles.tableCell, ...styles.colQty } }, String(item.quantity)),
-            React.createElement(Text, { style: { ...styles.tableCell, ...styles.colPrice } }, formatCurrency(item.snapshot_price)),
-            React.createElement(Text, { style: { ...styles.tableCell, ...styles.colSubtotal } }, formatCurrency(lineTotal))
+            React.createElement(Text, { style: styles.invoiceTitle }, 'INVOICE')
           ),
-        ];
-
-        // Special instruction box (PDF-02)
-        if (item.special_instruction) {
-          elements.push(
-            React.createElement(View, { style: styles.specialInstructionBox, key: `si-${idx}` },
-              React.createElement(Text, { style: styles.specialInstructionLabel }, 'Special Instructions'),
-              React.createElement(Text, { style: styles.specialInstructionText }, item.special_instruction)
-            )
-          );
-        }
-
-        return elements;
-      }).flat(),
-
-      // Totals
-      React.createElement(View, { style: styles.totalsSection },
-        React.createElement(View, { style: styles.totalRow },
-          React.createElement(Text, { style: styles.totalLabel }, 'Subtotal'),
-          React.createElement(Text, { style: styles.totalValue }, formatCurrency(order.subtotal))
-        ),
-        React.createElement(View, { style: styles.grandTotalRow },
-          React.createElement(Text, { style: styles.grandTotalLabel }, 'Total'),
-          React.createElement(Text, { style: styles.grandTotalValue }, formatCurrency(order.total))
+          React.createElement(View, { style: styles.headerRight },
+            React.createElement(Text, { style: styles.txnBadge }, `TXN: #${order.invoice_number}`),
+            React.createElement(Text, { style: styles.headerMetaText }, `ISSUED: ${formatDate(order.createdAt)}`),
+            // Assuming due date is same as issued date for this ERP since it's instant POS
+            React.createElement(Text, { style: styles.headerMetaText }, `DUE DATE: ${formatDate(order.createdAt)}`)
+          )
         )
       ),
 
-      // Footer
-      React.createElement(Text, { style: styles.footer }, 'Thank you for your purchase! — VEXOR')
+      // 2. Customer Info (Bill To)
+      React.createElement(View, { style: styles.shadow4 },
+        React.createElement(View, { style: styles.customerBox },
+          React.createElement(Text, { style: styles.customerBadge }, 'CUSTOMER DETAILS:'),
+          React.createElement(Text, { style: styles.customerName }, order.customer_name),
+          React.createElement(Text, { style: styles.customerDetail }, order.customer_phone),
+          order.customer_email ? React.createElement(Text, { style: styles.customerDetail }, order.customer_email) : null,
+          React.createElement(View, { style: styles.customerDivider },
+            React.createElement(Text, { style: styles.customerAccount }, 'ACCOUNT: #GUEST')
+          )
+        )
+      ),
+
+      // 3. Line Items
+      React.createElement(View, { style: styles.shadow4 },
+        React.createElement(View, { style: styles.tableBox },
+          React.createElement(View, { style: styles.tableHeader },
+            React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colSku } }, 'SKU'),
+            React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colItem } }, 'PRODUCT NAME'),
+            React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colSize } }, 'SIZE'),
+            React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colQty } }, 'QTY'),
+            React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colPrice } }, 'UNIT PRICE'),
+            React.createElement(Text, { style: { ...styles.tableHeaderCell, ...styles.colTotal } }, 'TOTAL')
+          ),
+          
+          ...order.line_items.map((item, idx) => {
+            const lineTotal = item.snapshot_price * item.quantity;
+            const rowStyle = idx % 2 === 0 ? styles.tableRow : styles.tableRowAlt;
+
+            const elements = [
+              React.createElement(View, { style: rowStyle, key: `row-${idx}` },
+                // Just extracting a pseudo SKU if actual isn't strictly available, or using item._id
+                React.createElement(Text, { style: { ...styles.tableCellBold, ...styles.colSku } }, String(item.sku_id || `VEX-${idx+1}`).slice(-8).toUpperCase()),
+                React.createElement(Text, { style: { ...styles.tableCellBold, ...styles.colItem } }, item.product_name || `JERSEY`),
+                React.createElement(Text, { style: { ...styles.tableCell, ...styles.colSize } }, item.size),
+                React.createElement(Text, { style: { ...styles.tableCell, ...styles.colQty } }, String(item.quantity).padStart(2, '0')),
+                React.createElement(Text, { style: { ...styles.tableCell, ...styles.colPrice } }, formatCurrency(item.snapshot_price)),
+                React.createElement(Text, { style: { ...styles.tableCellBold, ...styles.colTotal } }, formatCurrency(lineTotal))
+              )
+            ];
+
+            if (item.special_instruction) {
+              elements.push(
+                React.createElement(View, { style: styles.instructionRow, key: `si-${idx}` },
+                  React.createElement(Text, { style: styles.instructionText }, 
+                    React.createElement(Text, { style: styles.instructionLabel }, 'NOTE: '), 
+                    item.special_instruction
+                  )
+                )
+              );
+            }
+            return elements;
+          }).flat()
+        )
+      ),
+
+      // 4. Totals & Notes
+      React.createElement(View, { style: styles.bottomSection },
+        // Notes
+        React.createElement(View, { style: styles.notesBox },
+          React.createElement(Text, { style: styles.notesTitle }, 'NOTES / TERMS:'),
+          React.createElement(Text, { style: styles.notesContent }, 
+            'All returns must be processed within 14 days of delivery. ' +
+            'Subject to a 15% restocking fee on bulk orders. ' +
+            'Thank you for choosing Vexor for your high-performance needs.'
+          )
+        ),
+        // Calculation Column
+        React.createElement(View, { style: styles.calcContainer },
+          React.createElement(View, { style: styles.shadow4 },
+            React.createElement(View, { style: styles.calcBox },
+              React.createElement(View, { style: styles.calcRow },
+                React.createElement(Text, { style: styles.calcLabelDark }, 'SUBTOTAL'),
+                React.createElement(Text, { style: styles.calcValueDark }, formatCurrency(order.subtotal))
+              ),
+              React.createElement(View, { style: styles.calcRow },
+                React.createElement(Text, { style: styles.calcLabel }, 'TAX (0%)'),
+                React.createElement(Text, { style: styles.calcValue }, '৳0')
+              ),
+              React.createElement(View, { style: styles.calcRow },
+                React.createElement(Text, { style: styles.calcLabel }, 'SHIPPING'),
+                React.createElement(Text, { style: styles.calcValue }, '৳0')
+              ),
+              React.createElement(View, { style: styles.grandTotalDivider },
+                React.createElement(Text, { style: styles.grandTotalLabel }, 'GRAND TOTAL'),
+                React.createElement(Text, { style: styles.grandTotalValue }, formatCurrency(order.total))
+              )
+            )
+          )
+        )
+      )
     )
   );
 };
 
-/**
- * Generate a PDF invoice buffer from an Order document.
- * @param {Object} order - Mongoose Order document (populated with line_items)
- * @returns {Promise<Buffer>} PDF file buffer
- */
 const generateInvoicePDF = async (order) => {
   const element = React.createElement(InvoiceDocument, { order });
   const buffer = await renderToBuffer(element);

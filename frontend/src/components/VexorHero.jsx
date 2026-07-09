@@ -1,47 +1,80 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import useAuthStore from '../store/authStore';
 import LoginModal from './LoginModal';
 
 const JERSEYS = [
   {
-    team:      'Real Madrid',
-    ghost:     'REAL MADRID',
-    season:    '2024 / 25',
-    type:      'Home',
-    price:     '৳ 2,400',
-    src:       '/images/messi.png',
-    bg:        '#1C2B4A',
-    panel:     '#111D33',
-    chipBg:    '#D4AF37',
-    chipText:  '#1C2B4A',
+    team: 'Argentina',
+    ghost: 'ARGENTINA',
+    season: '2026',
+    type: 'Home',
+    src: '/images/messi.png',
+    bg: '#43A1D5',
+    panel: '#2C7FB3',
+    chipBg: '#F6B40E',
+    chipText: '#000000',
+    shadowHex: '#F6B40E',
+    importance: 'Represents the defending World Champions looking to retain their title in North America. Features the iconic three stars celebrating their historic 2022 victory.',
+    importantDate: 'June 14, 2026 - MetLife Stadium'
+  },
+  {
+    team: 'Real Madrid',
+    ghost: 'REAL MADRID',
+    season: '2016 / 17',
+    type: 'Home',
+    src: '/images/ronaldo.png',
+    bg: '#5A458D',
+    panel: '#3B2C63',
+    chipBg: '#FFFFFF',
+    chipText: '#5A458D',
+    shadowHex: '#FFFFFF',
+    importance: 'Worn during a historic season where the club secured both the La Liga title and the UEFA Champions League. This jersey is immortalized by their dominant run under Zinedine Zidane.',
+    importantDate: 'May 14, 2017 - Santiago Bernabéu'
+  },
+  {
+    team: 'Brazil',
+    ghost: 'BRAZIL',
+    season: '2023',
+    type: 'Home',
+    src: '/images/neymar.png',
+    bg: '#FFDC02',
+    panel: '#E5C600',
+    chipBg: '#19AE47',
+    chipText: '#FFFFFF',
+    shadowHex: '#19AE47',
+    importance: 'A vibrant return to the classic canary yellow, symbolizing a new era of Brazilian football. It carries the weight of a nation eager to reclaim international glory.',
+    importantDate: 'September 8, 2023 - Mangueirão Stadium'
+  },
+  {
+    team: 'France',
+    ghost: 'FRANCE',
+    season: '2022',
+    type: 'Home',
+    src: '/images/mbappe.png',
+    bg: '#002654',
+    panel: '#001530',
+    chipBg: '#D4AF37',
+    chipText: '#001530',
     shadowHex: '#D4AF37',
+    importance: 'The kit worn during their dramatic run to the World Cup Final in Qatar. Known for its elegant deep navy base and metallic gold accents honoring their status as then-defending champions.',
+    importantDate: 'December 18, 2022 - Lusail Stadium'
   },
   {
-    team:      'FC Barcelona',
-    ghost:     'BARCELONA',
-    season:    '2024 / 25',
-    type:      'Home',
-    price:     '৳ 2,200',
-    src:       '/images/model-barcelona.png',
-    bg:        '#A31132',
-    panel:     '#7A0D24',
-    chipBg:    '#003DA5',
-    chipText:  '#FFFFFF',
-    shadowHex: '#003DA5',
-  },
-  {
-    team:      'Paris SG',
-    ghost:     'PARIS',
-    season:    '2024 / 25',
-    type:      'Home',
-    price:     '৳ 2,600',
-    src:       '/images/model-psg.png',
-    bg:        '#C60B1E',
-    panel:     '#9A0818',
-    chipBg:    '#001F5F',
-    chipText:  '#FFFFFF',
-    shadowHex: '#001F5F',
-  },
+    team: 'Manchester City',
+    ghost: 'MAN CITY',
+    season: '2025 / 26',
+    type: 'Home',
+    src: '/images/halland.png',
+    bg: '#6CABDD',
+    panel: '#5595C8',
+    chipBg: '#FFFFFF',
+    chipText: '#001838',
+    shadowHex: '#FFFFFF',
+    importance: "Marks a continuation of domestic dominance with a modern take on the traditional sky blue. The design reflects a tactical evolution under Pep Guardiola's ongoing legacy.",
+    importantDate: 'May 24, 2026 - Etihad Stadium'
+  }
 ];
 
 function getRoleStyle(role, isMobile) {
@@ -76,6 +109,16 @@ function getRoleStyle(role, isMobile) {
         opacity:   0.80,
         zIndex:    10,
       };
+    case 'hidden':
+      return {
+        left:      '50%',
+        bottom:    isMobile ? '28%'  : '10%',
+        height:    isMobile ? '18%'  : '30%',
+        transform: 'translateX(-50%) scale(0.5)',
+        filter:    'blur(4px)',
+        opacity:   0,
+        zIndex:    0,
+      };
   }
 }
 
@@ -84,6 +127,19 @@ export default function VexorHero() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const [showLogin, setShowLogin] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+
+  const location = useLocation();
+  const routerNavigate = useNavigate();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
+  useEffect(() => {
+    if (location.state?.authWarning) {
+      setShowWarning(true);
+      // Clear the state so it doesn't trigger on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     JERSEYS.forEach(j => { const img = new Image(); img.src = j.src; });
@@ -100,20 +156,21 @@ export default function VexorHero() {
     setIsAnimating(true);
     setActiveIndex(prev =>
       dir === 'next'
-        ? (prev + 1) % 3
-        : (prev + 2) % 3
+        ? (prev + 1) % JERSEYS.length
+        : (prev + JERSEYS.length - 1) % JERSEYS.length
     );
     setTimeout(() => setIsAnimating(false), 650);
   }
 
   const center = activeIndex;
-  const right  = (activeIndex + 1) % 3;
-  const left   = (activeIndex + 2) % 3;
+  const right  = (activeIndex + 1) % JERSEYS.length;
+  const left   = (activeIndex + JERSEYS.length - 1) % JERSEYS.length;
 
   function getRole(index) {
     if (index === center) return 'center';
     if (index === right)  return 'right';
-    return 'left';
+    if (index === left)   return 'left';
+    return 'hidden';
   }
 
   return (
@@ -228,15 +285,45 @@ export default function VexorHero() {
         {/* Header */}
         <header style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 65, height: '80px', backgroundColor: '#FFFFFF', borderBottom: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '0 1rem' : '0 2rem' }}>
           <img src="/src/assets/horizontal_black.png" alt="Vexor Logo" style={{ height: '40px', objectFit: 'contain' }} />
-          <button 
-            onClick={() => setShowLogin(true)}
-            style={{ width: '44px', height: '44px', backgroundColor: '#000000', border: 'none', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background-color 200ms', borderRadius: 0, boxShadow: '4px 4px 0px #E5E5E5' }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FF5500'; e.currentTarget.style.boxShadow = '6px 6px 0px #000000'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#000000'; e.currentTarget.style.boxShadow = '4px 4px 0px #E5E5E5'; }}
-          >
-            <span className="material-symbols-outlined">login</span>
-          </button>
+          {isAuthenticated ? (
+            <button 
+              onClick={() => routerNavigate('/dashboard')}
+              style={{ width: '44px', height: '44px', backgroundColor: '#000000', border: 'none', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background-color 200ms', borderRadius: 0, boxShadow: '4px 4px 0px #E5E5E5' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FF5500'; e.currentTarget.style.boxShadow = '6px 6px 0px #000000'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#000000'; e.currentTarget.style.boxShadow = '4px 4px 0px #E5E5E5'; }}
+              title="Go to Dashboard"
+            >
+              <span className="material-symbols-outlined">account_circle</span>
+            </button>
+          ) : (
+            <button 
+              onClick={() => setShowLogin(true)}
+              style={{ width: '44px', height: '44px', backgroundColor: '#000000', border: 'none', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background-color 200ms', borderRadius: 0, boxShadow: '4px 4px 0px #E5E5E5' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FF5500'; e.currentTarget.style.boxShadow = '6px 6px 0px #000000'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#000000'; e.currentTarget.style.boxShadow = '4px 4px 0px #E5E5E5'; }}
+              title="Login"
+            >
+              <span className="material-symbols-outlined">login</span>
+            </button>
+          )}
         </header>
+
+        {/* Auth Warning Banner */}
+        {showWarning && (
+          <div style={{
+            position: 'absolute', top: '90px', left: '50%', transform: 'translateX(-50%)', zIndex: 100,
+            backgroundColor: '#DC2626', color: '#FFFFFF', padding: '12px 24px',
+            fontFamily: "'Bebas Neue', 'Trade Gothic Bold', sans-serif", fontSize: '1.2rem',
+            border: '2px solid #000000', boxShadow: '4px 4px 0px #000000',
+            display: 'flex', alignItems: 'center', gap: '12px', textTransform: 'uppercase'
+          }}>
+            <span className="material-symbols-outlined">warning</span>
+            Secure Area: Please log in to continue
+            <button onClick={() => setShowWarning(false)} style={{ background: 'none', border: 'none', color: '#FFF', cursor: 'pointer', marginLeft: '12px', display: 'flex', alignItems: 'center' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>close</span>
+            </button>
+          </div>
+        )}
 
         <div style={{ position: 'absolute', top: '6rem', right: isMobile ? '1rem' : '2rem', zIndex: 60, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
           <span
@@ -250,10 +337,10 @@ export default function VexorHero() {
               textTransform: 'uppercase',
             }}
           >
-            {String(activeIndex + 1).padStart(2, '0')} / 03
+            {String(activeIndex + 1).padStart(2, '0')} / {String(JERSEYS.length).padStart(2, '0')}
           </span>
           <div style={{ width: '80px', height: '2px', backgroundColor: 'rgba(255,255,255,0.25)', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${((activeIndex + 1) / 3) * 100}%`, backgroundColor: '#FFFFFF', transition: 'width 650ms cubic-bezier(0.4,0,0.2,1)' }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${((activeIndex + 1) / JERSEYS.length) * 100}%`, backgroundColor: '#FFFFFF', transition: 'width 650ms cubic-bezier(0.4,0,0.2,1)' }} />
           </div>
         </div>
 
@@ -293,33 +380,32 @@ export default function VexorHero() {
             {JERSEYS[activeIndex].team}
           </p>
 
-          <p
-            style={{
-              fontFamily: "'Barlow', sans-serif",
-              fontSize: isMobile ? '0.9rem' : '1.05rem',
-              fontWeight: 500,
-              color: 'rgba(255,255,255,0.80)',
-              marginBottom: isMobile ? '14px' : '20px',
-              letterSpacing: '0.04em',
-            }}
-          >
-            From {JERSEYS[activeIndex].price}
-          </p>
-
           {!isMobile && (
-            <p
-              style={{
-                fontFamily: "'Barlow', sans-serif",
-                fontSize: '0.78rem',
-                color: 'rgba(255,255,255,0.70)',
-                lineHeight: 1.65,
-                marginBottom: '22px',
-                maxWidth: '260px',
-              }}
-            >
-              Authentic kits. Verified replicas. Every stitch, badge, and colorway
-              exactly as worn on the pitch. Order today, delivered fast.
-            </p>
+            <div style={{ marginBottom: '22px', maxWidth: '300px' }}>
+              <p
+                style={{
+                  fontFamily: "'Barlow', sans-serif",
+                  fontSize: '0.78rem',
+                  color: 'rgba(255,255,255,0.70)',
+                  lineHeight: 1.65,
+                }}
+              >
+                {JERSEYS[activeIndex].importance}
+              </p>
+              <p
+                style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: '#FFFFFF',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  marginTop: '8px'
+                }}
+              >
+                {JERSEYS[activeIndex].importantDate}
+              </p>
+            </div>
           )}
 
           <div style={{ display: 'flex', gap: '12px' }}>
@@ -360,38 +446,6 @@ export default function VexorHero() {
               </button>
             ))}
           </div>
-        </div>
-
-        <div style={{ position: 'absolute', bottom: isMobile ? '1.5rem' : '5rem', right: isMobile ? '1rem' : '2.5rem', zIndex: 60 }}>
-          <a
-            href="#order"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              fontFamily: "'Bebas Neue', 'Trade Gothic Bold', sans-serif",
-              fontSize: isMobile ? 'clamp(22px, 6vw, 36px)' : 'clamp(28px, 4vw, 56px)',
-              fontWeight: 400,
-              color: '#FFFFFF',
-              textDecoration: 'none',
-              textTransform: 'uppercase',
-              letterSpacing: '-0.01em',
-              lineHeight: 1,
-              opacity: 0.95,
-              borderBottom: '2px solid rgba(255,255,255,0.50)',
-              paddingBottom: '4px',
-              transition: 'opacity 200ms ease, border-color 200ms ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.borderColor = '#FF5500';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.opacity = '0.95';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.50)';
-            }}
-          >
-            ORDER NOW
-            <ArrowUpRight size={isMobile ? 18 : 28} strokeWidth={2.5} />
-          </a>
         </div>
 
         {!isMobile && (
