@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
+import LoginModal from './LoginModal';
+import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 
 const JERSEYS = [
   {
@@ -8,7 +10,7 @@ const JERSEYS = [
     season:    '2024 / 25',
     type:      'Home',
     price:     '৳ 2,400',
-    src:       '/images/model-realmadrid.png',
+    src:       '/images/messi.png',
     bg:        '#1C2B4A',
     panel:     '#111D33',
     chipBg:    '#D4AF37',
@@ -82,6 +84,7 @@ export default function VexorHero() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     JERSEYS.forEach(j => { const img = new Image(); img.src = j.src; });
@@ -223,24 +226,20 @@ export default function VexorHero() {
           }}
         />
 
-        {/* Layer 6: UI Chrome */}
-        <div style={{ position: 'absolute', top: '1.5rem', left: isMobile ? '1rem' : '2rem', zIndex: 60 }}>
-          <span
-            style={{
-              fontFamily: "'Bebas Neue', 'Trade Gothic Bold', sans-serif",
-              fontSize: '1.5rem',
-              letterSpacing: '0.20em',
-              color: '#FFFFFF',
-              opacity: 0.95,
-              textTransform: 'uppercase',
-              lineHeight: 1,
-            }}
+        {/* Header */}
+        <header style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 65, height: '80px', backgroundColor: '#FFFFFF', borderBottom: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '0 1rem' : '0 2rem' }}>
+          <img src="/src/assets/horizontal_black.png" alt="Vexor Logo" style={{ height: '40px', objectFit: 'contain' }} />
+          <button 
+            onClick={() => setShowLogin(true)}
+            style={{ width: '44px', height: '44px', backgroundColor: '#000000', border: 'none', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background-color 200ms', borderRadius: 0, boxShadow: '4px 4px 0px #E5E5E5' }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FF5500'; e.currentTarget.style.boxShadow = '6px 6px 0px #000000'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#000000'; e.currentTarget.style.boxShadow = '4px 4px 0px #E5E5E5'; }}
           >
-            VEXOR
-          </span>
-        </div>
+            <span className="material-symbols-outlined">login</span>
+          </button>
+        </header>
 
-        <div style={{ position: 'absolute', top: '1.5rem', right: isMobile ? '1rem' : '2rem', zIndex: 60, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+        <div style={{ position: 'absolute', top: '6rem', right: isMobile ? '1rem' : '2rem', zIndex: 60, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
           <span
             style={{
               fontFamily: "'Barlow Condensed', sans-serif",
@@ -453,6 +452,8 @@ export default function VexorHero() {
           </div>
         )}
       </div>
+
+      <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </div>
   );
 }
