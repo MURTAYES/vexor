@@ -8,6 +8,7 @@ import InventoryList from './views/InventoryList';
 import AddProduct from './views/AddProduct';
 import Checkout from './views/Checkout';
 import InvoiceList from './views/InvoiceList';
+import Landing from './views/Landing';
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route 
             path="/*" 
@@ -28,7 +30,6 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Routes>
-                    <Route path="/" element={<Dashboard />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/inventory" element={<InventoryList />} />
                     <Route path="/inventory/new" element={<AddProduct />} />
