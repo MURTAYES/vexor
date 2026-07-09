@@ -28,15 +28,19 @@ function App() {
             path="/*" 
             element={
               <ProtectedRoute>
-                <Layout>
-                  <Routes>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/inventory" element={<InventoryList />} />
-                    <Route path="/inventory/new" element={<AddProduct />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/invoices" element={<InvoiceList />} />
-                  </Routes>
-                </Layout>
+                <Routes>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/*" element={
+                    <Layout>
+                      <Routes>
+                        <Route path="/inventory" element={<InventoryList />} />
+                        <Route path="/inventory/new" element={<AddProduct />} />
+                        <Route path="/checkout" element={<Checkout />} />
+                        <Route path="/invoices" element={<InvoiceList />} />
+                      </Routes>
+                    </Layout>
+                  } />
+                </Routes>
               </ProtectedRoute>
             } 
           />
