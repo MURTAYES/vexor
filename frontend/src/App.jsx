@@ -8,7 +8,7 @@ import InventoryList from './views/InventoryList';
 import AddProduct from './views/AddProduct';
 import Checkout from './views/Checkout';
 import InvoiceList from './views/InvoiceList';
-import Landing from './views/Landing';
+import VexorHero from './components/VexorHero';
 
 const queryClient = new QueryClient();
 
@@ -22,7 +22,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<VexorHero />} />
           <Route path="/login" element={<Login />} />
           <Route 
             path="/*" 
