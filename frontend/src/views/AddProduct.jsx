@@ -23,6 +23,7 @@ const productSchema = z.object({
 const AddProduct = () => {
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [uploadError, setUploadError] = useState('');
   
   const uploadImage = useUploadImage();
@@ -45,42 +46,30 @@ const AddProduct = () => {
     }
   });
 
-  const handleImageChange = async (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const clubCountry = getValues('club_country_name');
-    const season = getValues('season');
-    const kitType = getValues('kit_type');
-
-    if (!clubCountry || !season) {
-      setUploadError('Please fill out Club/Country and Season first');
-      e.target.value = '';
-      return;
-    }
-    
     setUploadError('');
-    try {
-      const url = await uploadImage.mutateAsync({
-        file,
-        jerseyName: clubCountry,
-        category: kitType,
-        year: season
-      });
-      setImageUrl(url);
-    } catch (err) {
-      setUploadError('Failed to upload image');
-    }
+    setImageFile(file);
+    setImageUrl(URL.createObjectURL(file));
   };
 
   const onSubmit = async (data) => {
-    if (!imageUrl) {
+    if (!imageFile) {
       setUploadError('Image is required');
       return;
     }
 
     try {
-      await createProduct.mutateAsync({ ...data, image_url: imageUrl });
+      const uploadedUrl = await uploadImage.mutateAsync({
+        file: imageFile,
+        jerseyName: data.club_country_name,
+        category: data.kit_type,
+        year: data.season
+      });
+
+      await createProduct.mutateAsync({ ...data, image_url: uploadedUrl });
       navigate('/inventory');
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to create product');

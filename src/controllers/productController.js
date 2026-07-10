@@ -3,6 +3,8 @@ const SKU = require('../models/SKU');
 const { clearCacheKeys } = require('./catalogController');
 const logger = require('../utils/logger');
 const { z } = require('zod');
+const fs = require('fs');
+const path = require('path');
 
 // Helpers for SKU generation (INV-01)
 const generateSkuId = (club, season, kit, version, size) => {
@@ -11,6 +13,19 @@ const generateSkuId = (club, season, kit, version, size) => {
   const codeKit = kit.charAt(0).toUpperCase();
   const codeVersion = version.charAt(0).toUpperCase();
   return `${codeClub}-${codeSeason}-${codeKit}-${codeVersion}-${size}`;
+};
+
+const deleteImageFromDisk = (imageUrl) => {
+  if (!imageUrl) return;
+  try {
+    const filename = path.basename(imageUrl);
+    const filePath = path.join(__dirname, '../../uploads', filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (err) {
+    logger.warn({ err }, `Failed to delete image: ${imageUrl}`);
+  }
 };
 
 const productSchema = z.object({
@@ -56,6 +71,7 @@ const createProduct = async (req, res) => {
     try {
       await product.save();
     } catch (dbError) {
+      deleteImageFromDisk(image_url);
       if (dbError.code === 11000) {
         // PROD-06
         return res.status(409).json({ error: 'A product with this club, season, kit type, and version already exists.' });
@@ -81,6 +97,9 @@ const createProduct = async (req, res) => {
     res.status(201).json({ message: 'Product created successfully', product_id: product._id });
   } catch (error) {
     logger.error({ err: error }, 'Error creating product');
+    if (req.body.image_url) {
+      deleteImageFromDisk(req.body.image_url);
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -166,6 +185,9 @@ const deleteProduct = async (req, res) => {
     // We will just delete the product and its SKUs.
     await SKU.deleteMany({ product_id: productId });
     await Product.findByIdAndDelete(productId);
+
+    // Delete image file from disk
+    deleteImageFromDisk(product.image_url);
 
     await clearCacheKeys('catalog:*');
     res.status(200).json({ message: 'Product deleted successfully' });
