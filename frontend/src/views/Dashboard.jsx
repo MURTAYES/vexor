@@ -99,14 +99,14 @@ const Dashboard = () => {
 
       {/* Recent Orders Table */}
       <div className="bg-white border-[3px] border-vexor-black shadow-[6px_6px_0px_#0A0A0A] mt-8" style={{ borderRadius: 0 }}>
-        <div className="p-6 border-b-[3px] border-vexor-black bg-vexor-black text-white flex justify-between items-center">
-          <h3 className="font-headline text-2xl font-[900] italic uppercase tracking-wider">COMMAND LOG <span className="text-vexor-orange">//</span> RECENT ORDERS</h3>
+        <div className="p-4 sm:p-6 border-b-[3px] border-vexor-black bg-vexor-black text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h3 className="font-headline text-xl sm:text-2xl font-[900] italic uppercase tracking-wider">COMMAND LOG <span className="text-vexor-orange">//</span> RECENT ORDERS</h3>
           <a href="/invoices" className="text-white hover:text-vexor-orange flex items-center gap-2 font-heading font-bold uppercase text-[0.8rem] tracking-[0.15em] transition-colors">
             VIEW ALL <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
           </a>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[800px] text-left border-collapse">
             <thead>
               <tr className="bg-[#F2F2F2] border-b-[3px] border-vexor-black font-heading text-xs font-[800] text-vexor-black uppercase tracking-[0.15em]">
                 <th className="p-4 px-6 w-40">INVOICE #</th>

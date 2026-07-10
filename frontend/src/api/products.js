@@ -36,10 +36,18 @@ export const useProductSkus = (productId) => {
 
 export const useUploadImage = () => {
   return useMutation({
-    mutationFn: async (file) => {
+    mutationFn: async ({ file, jerseyName, category, year }) => {
       const formData = new FormData();
       formData.append('image', file);
-      const { data } = await apiClient.post('/products/image', formData, {
+      
+      const queryParams = new URLSearchParams();
+      if (jerseyName) queryParams.append('jerseyName', jerseyName);
+      if (category) queryParams.append('category', category);
+      if (year) queryParams.append('year', year);
+
+      const url = queryParams.toString() ? `/products/image?${queryParams.toString()}` : '/products/image';
+
+      const { data } = await apiClient.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return data.url;

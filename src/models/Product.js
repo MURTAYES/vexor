@@ -28,8 +28,7 @@ const productSchema = new mongoose.Schema(
     },
     base_price: {
       type: Number,
-      required: true,
-      min: 0,
+      default: 0,
     },
     active_status: {
       type: Boolean,

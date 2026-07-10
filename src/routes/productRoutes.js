@@ -19,9 +19,15 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
+    const { jerseyName, category, year } = req.query;
+    const namePart = (jerseyName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const catPart = (category || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const yearPart = (year || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const baseName = `${namePart}${catPart}${yearPart}` || 'jersey';
+    
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+    cb(null, `${baseName}-${uniqueSuffix}${ext}`);
   },
 });
 

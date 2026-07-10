@@ -25,7 +25,7 @@ const AddProduct = () => {
   const uploadImage = useUploadImage();
   const createProduct = useCreateProduct();
 
-  const { register, handleSubmit, formState: { errors }, watch } = useForm({
+  const { register, handleSubmit, formState: { errors }, getValues } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       kit_type: 'Home',
@@ -37,10 +37,25 @@ const AddProduct = () => {
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const clubCountry = getValues('club_country_name');
+    const season = getValues('season');
+    const kitType = getValues('kit_type');
+
+    if (!clubCountry || !season) {
+      setUploadError('Please fill out Club/Country and Season first');
+      e.target.value = '';
+      return;
+    }
     
     setUploadError('');
     try {
-      const url = await uploadImage.mutateAsync(file);
+      const url = await uploadImage.mutateAsync({
+        file,
+        jerseyName: clubCountry,
+        category: kitType,
+        year: season
+      });
       setImageUrl(url);
     } catch (err) {
       setUploadError('Failed to upload image');

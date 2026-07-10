@@ -11,8 +11,11 @@ const productSchema = z.object({
   season: z.string().min(1, 'Required'),
   kit_type: z.enum(['Home', 'Away', 'Third', 'Goalkeeper', 'Special']),
   version: z.enum(['General', 'Retro', 'Player Issue']),
-  base_price: z.number().min(0, 'Must be positive'),
-  initial_stock: z.record(z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']), z.number().min(0)),
+  base_price: z.number().min(0).optional(),
+  initial_stock: z.record(z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']), z.object({
+    stock: z.number().min(0),
+    cost_price: z.number().min(0)
+  })),
 });
 
 const AddProductForm = ({ onSuccess }) => {
@@ -22,12 +25,19 @@ const AddProductForm = ({ onSuccess }) => {
   const uploadImage = useUploadImage();
   const createProduct = useCreateProduct();
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, getValues } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       kit_type: 'Home',
       version: 'General',
-      initial_stock: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XXL: 0 }
+      initial_stock: {
+        XS: { stock: 0, cost_price: 0 },
+        S: { stock: 0, cost_price: 0 },
+        M: { stock: 0, cost_price: 0 },
+        L: { stock: 0, cost_price: 0 },
+        XL: { stock: 0, cost_price: 0 },
+        XXL: { stock: 0, cost_price: 0 }
+      }
     }
   });
 
@@ -35,9 +45,24 @@ const AddProductForm = ({ onSuccess }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const clubCountry = getValues('club_country_name');
+    const season = getValues('season');
+    const kitType = getValues('kit_type');
+
+    if (!clubCountry || !season) {
+      setUploadError('Please fill out Club/Country and Season first');
+      e.target.value = '';
+      return;
+    }
+
     setUploadError('');
     try {
-      const url = await uploadImage.mutateAsync(file);
+      const url = await uploadImage.mutateAsync({
+        file,
+        jerseyName: clubCountry,
+        category: kitType,
+        year: season
+      });
       setImageUrl(url);
     } catch {
       setUploadError('Failed to upload image');
@@ -105,7 +130,7 @@ const AddProductForm = ({ onSuccess }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block font-headline uppercase mb-1 text-sm font-bold">Kit Type</label>
           <select {...register('kit_type')} className="w-full p-3 uppercase font-bold text-sm">
@@ -125,27 +150,35 @@ const AddProductForm = ({ onSuccess }) => {
             <option value="Retro">Retro</option>
           </select>
         </div>
-
-        <div>
-          <label className="block font-headline uppercase mb-1 text-sm font-bold">Base Price (৳)</label>
-          <input type="number" {...register('base_price', { valueAsNumber: true })} className="w-full p-3" placeholder="1500" />
-          {errors.base_price && <p className="text-error text-xs font-bold uppercase mt-1">{errors.base_price.message}</p>}
-        </div>
       </div>
 
-      {/* Initial Stock */}
+      {/* Initial Stock & Cost */}
       <div>
-        <label className="block font-headline uppercase mb-3 text-sm font-bold border-b border-border-muted pb-2">Initial Stock</label>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+        <label className="block font-headline uppercase mb-3 text-sm font-bold border-b border-border-muted pb-2">Initial Stock & Cost Price (৳)</label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
           {SIZES.map(size => (
-            <div key={size}>
-              <label className="block font-bold uppercase text-xs mb-1 text-center text-secondary">{size}</label>
-              <input
-                type="number"
-                {...register(`initial_stock.${size}`, { valueAsNumber: true })}
-                className="w-full p-2 text-center"
-                min="0"
-              />
+            <div key={size} className="border-2 border-border-muted p-2 bg-surface-neutral">
+              <label className="block font-bold uppercase text-xs mb-2 text-center text-vexor-black bg-white py-1 border-2 border-vexor-black">{size}</label>
+              <div className="space-y-2">
+                <div>
+                  <span className="text-[10px] font-bold text-secondary uppercase block mb-1">Qty</span>
+                  <input
+                    type="number"
+                    {...register(`initial_stock.${size}.stock`, { valueAsNumber: true })}
+                    className="w-full p-2 text-center text-sm"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-secondary uppercase block mb-1">Cost (৳)</span>
+                  <input
+                    type="number"
+                    {...register(`initial_stock.${size}.cost_price`, { valueAsNumber: true })}
+                    className="w-full p-2 text-center text-sm"
+                    min="0"
+                  />
+                </div>
+              </div>
             </div>
           ))}
         </div>

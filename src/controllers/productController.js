@@ -19,8 +19,11 @@ const productSchema = z.object({
   kit_type: z.enum(['Home', 'Away', 'Third', 'Goalkeeper', 'Special']),
   version: z.enum(['General', 'Retro', 'Player Issue']),
   image_url: z.string().url(),
-  base_price: z.number().min(0),
-  initial_stock: z.record(z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']), z.number().min(0)),
+  base_price: z.number().min(0).optional(),
+  initial_stock: z.record(z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']), z.object({
+    stock: z.number().min(0),
+    cost_price: z.number().min(0)
+  })),
 });
 
 const createProduct = async (req, res) => {
@@ -46,7 +49,7 @@ const createProduct = async (req, res) => {
       kit_type,
       version,
       image_url,
-      base_price,
+      base_price: base_price || 0,
       active_status: true,
     });
 
@@ -60,13 +63,14 @@ const createProduct = async (req, res) => {
       throw dbError;
     }
 
-    const skuPromises = Object.entries(initial_stock).map(([size, stock]) => {
+    const skuPromises = Object.entries(initial_stock).map(([size, data]) => {
       const sku_id = generateSkuId(club_country_name, season, kit_type, version, size);
       const sku = new SKU({
         product_id: product._id,
         sku_id,
         size,
-        stock_available: stock,
+        stock_available: data.stock,
+        cost_price: data.cost_price,
       });
       return sku.save();
     });
