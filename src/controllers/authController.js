@@ -71,9 +71,13 @@ const logout = async (req, res) => {
       // but logout should be protected or at least decode the token.
       // We will assume logout is a protected route, so req.user is set by auth middleware.
       if (req.user && req.user.jti) {
-        // Add to Redis denylist with an expiration that matches the token max age (7 days)
-        // Set NX (Not eXists), EX (expire in seconds: 7 days)
-        await redisClient.set(`denylist:${req.user.jti}`, 'true', 'EX', 7 * 24 * 60 * 60);
+        try {
+          // Add to Redis denylist with an expiration that matches the token max age (7 days)
+          // Set NX (Not eXists), EX (expire in seconds: 7 days)
+          await redisClient.set(`denylist:${req.user.jti}`, 'true', 'EX', 7 * 24 * 60 * 60);
+        } catch (redisError) {
+          logger.warn(`Redis failed during logout denylist: ${redisError.message}`);
+        }
       }
     }
 

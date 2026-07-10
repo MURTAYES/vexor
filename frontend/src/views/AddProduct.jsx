@@ -14,7 +14,10 @@ const productSchema = z.object({
   kit_type: z.enum(['Home', 'Away', 'Third', 'Goalkeeper', 'Special']),
   version: z.enum(['General', 'Retro', 'Player Issue']),
   base_price: z.number().min(0, 'Must be positive'),
-  initial_stock: z.record(z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']), z.number().min(0)),
+  initial_stock: z.record(z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']), z.object({
+    stock: z.number().min(0).default(0),
+    cost_price: z.number().min(0).default(0)
+  })),
 });
 
 const AddProduct = () => {
@@ -30,7 +33,14 @@ const AddProduct = () => {
     defaultValues: {
       kit_type: 'Home',
       version: 'General',
-      initial_stock: { XS: 0, S: 0, M: 0, L: 0, XL: 0, XXL: 0 }
+      initial_stock: { 
+        XS: { stock: 0, cost_price: 0 }, 
+        S: { stock: 0, cost_price: 0 }, 
+        M: { stock: 0, cost_price: 0 }, 
+        L: { stock: 0, cost_price: 0 }, 
+        XL: { stock: 0, cost_price: 0 }, 
+        XXL: { stock: 0, cost_price: 0 } 
+      }
     }
   });
 
@@ -170,12 +180,20 @@ const AddProduct = () => {
               <label className="block font-heading text-xl uppercase mb-4 border-b-2 border-black pb-2">Initial Stock (Optional)</label>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
                 {SIZES.map(size => (
-                  <div key={size}>
-                    <label className="block font-bold uppercase text-xs mb-1 text-center">{size}</label>
+                  <div key={size} className="flex flex-col gap-1">
+                    <label className="block font-bold uppercase text-xs mb-1 text-center bg-black text-white py-1">{size}</label>
                     <input 
                       type="number" 
-                      {...register(`initial_stock.${size}`, { valueAsNumber: true })} 
-                      className="w-full p-2 text-center" 
+                      placeholder="Qty"
+                      {...register(`initial_stock.${size}.stock`, { valueAsNumber: true })} 
+                      className="w-full p-2 text-center text-sm border-2 border-black" 
+                      min="0"
+                    />
+                    <input 
+                      type="number" 
+                      placeholder="Cost ৳"
+                      {...register(`initial_stock.${size}.cost_price`, { valueAsNumber: true })} 
+                      className="w-full p-2 text-center text-sm border-2 border-black" 
                       min="0"
                     />
                   </div>
