@@ -181,7 +181,7 @@ const AddProduct = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 border-b-2 border-black pb-2 gap-4">
                 <label className="block font-heading text-xl uppercase">Initial Stock (Optional)</label>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-xs uppercase">Base Cost ৳:</span>
+                  <span className="font-bold text-xs uppercase">Cost (Apply All):</span>
                   <input 
                     type="number" 
                     value={globalCost}
@@ -215,7 +215,7 @@ const AddProduct = () => {
                     />
                     <input 
                       type="number" 
-                      placeholder="Cost ৳"
+                      placeholder="Ind. Cost ৳"
                       {...register(`initial_stock.${size}.cost_price`, { valueAsNumber: true })} 
                       className="w-full p-2 text-center text-sm border-2 border-black" 
                       min="0"
