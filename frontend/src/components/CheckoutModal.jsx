@@ -277,7 +277,7 @@ function JerseyModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
       <div 
         className="bg-[#F2F2F2] border-[3px] border-vexor-black flex flex-col shadow-[8px_8px_0px_#0A0A0A]" 
         style={{ width: 'min(95vw, 600px)', height: 'min(85vh, 700px)', borderRadius: 0 }}
@@ -364,6 +364,15 @@ export default function CheckoutModal({ isOpen, onClose }) {
   const navigate = useNavigate();
   const checkoutMutation = useCheckout();
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
+
   const { 
     customer_name, customer_phone, customer_email, line_items,
     setCustomerDetails, updateItem, removeItem, clearInvoice
@@ -428,7 +437,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/80 p-4 md:p-8" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 md:p-8" onClick={onClose}>
       <div 
         className="w-full max-w-[1400px] h-full max-h-[95vh] bg-[#F2F2F2] border-[3px] border-vexor-black shadow-[8px_8px_0px_#0A0A0A] flex flex-col overflow-hidden relative"
         onClick={e => e.stopPropagation()}
