@@ -13,7 +13,7 @@ const productSchema = z.object({
   season: z.string().min(1, 'Required'),
   kit_type: z.enum(['Home', 'Away', 'Third', 'Goalkeeper', 'Special']),
   version: z.enum(['General', 'Retro', 'Player Issue']),
-  base_price: z.number().min(0, 'Must be positive'),
+  base_price: z.number().min(0, 'Must be positive').optional(),
   initial_stock: z.record(z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']), z.object({
     stock: z.number().min(0).default(0),
     cost_price: z.number().min(0).default(0)
@@ -168,12 +168,6 @@ const AddProduct = () => {
                   <option value="Retro">Retro</option>
                 </select>
               </div>
-
-              <div>
-                <label className="block font-heading uppercase mb-2">Base Price (৳)</label>
-                <input type="number" {...register('base_price', { valueAsNumber: true })} className="w-full p-3" placeholder="e.g. 1500" />
-                {errors.base_price && <p className="text-red-500 text-sm font-bold uppercase mt-1">{errors.base_price.message}</p>}
-              </div>
             </div>
 
             {/* Initial Stock */}
@@ -213,9 +207,10 @@ const AddProduct = () => {
                       className="w-full p-2 text-center text-sm border-2 border-black" 
                       min="0"
                     />
+                    <span className="text-[10px] font-bold uppercase text-center mt-2">Ind. Cost ৳</span>
                     <input 
                       type="number" 
-                      placeholder="Ind. Cost ৳"
+                      placeholder="0"
                       {...register(`initial_stock.${size}.cost_price`, { valueAsNumber: true })} 
                       className="w-full p-2 text-center text-sm border-2 border-black" 
                       min="0"
