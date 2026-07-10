@@ -10,7 +10,7 @@ const useInvoiceStore = create((set) => ({
   
   addItem: (item) => set((state) => {
     const _localId = item._localId || crypto.randomUUID();
-    const lineTotal = item.quantity * item.unitPrice;
+    const lineTotal = item.quantity * item.sellingPrice;
     const newItem = { ...item, _localId, lineTotal };
     return { line_items: [...state.line_items, newItem] };
   }),
@@ -20,8 +20,8 @@ const useInvoiceStore = create((set) => ({
       line_items: state.line_items.map(item => {
         if (item._localId === _localId) {
           const updatedItem = { ...item, ...changes };
-          if (changes.quantity !== undefined || changes.unitPrice !== undefined) {
-            updatedItem.lineTotal = updatedItem.quantity * updatedItem.unitPrice;
+          if (changes.quantity !== undefined || changes.sellingPrice !== undefined) {
+            updatedItem.lineTotal = updatedItem.quantity * updatedItem.sellingPrice;
           }
           return updatedItem;
         }

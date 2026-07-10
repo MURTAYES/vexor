@@ -71,8 +71,8 @@ export const useCreateProduct = () => {
 export const useRestockSku = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ skuId, quantity }) => {
-      const { data } = await apiClient.patch(`/products/skus/${skuId}/restock`, { quantity });
+    mutationFn: async ({ skuId, quantity, cost_price }) => {
+      const { data } = await apiClient.patch(`/products/skus/${skuId}/restock`, { quantity, cost_price });
       return data;
     },
     onSuccess: (data, variables) => {

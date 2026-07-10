@@ -15,6 +15,7 @@ const checkoutSchema = z.object({
   line_items: z.array(z.object({
     sku_id: z.string().min(1),
     quantity: z.number().int().min(1),
+    selling_price: z.number().min(0),
     special_instruction: z.string().max(300).optional(),
   })).min(1),
 });
@@ -33,6 +34,7 @@ const checkout = async (req, res) => {
 
   try {
     let subtotal = 0;
+    let total_profit = 0;
     const finalLineItems = [];
 
     // Process each line item
@@ -69,8 +71,11 @@ const checkout = async (req, res) => {
         throw error;
       }
 
-      const snapshot_price = product.base_price;
-      subtotal += snapshot_price * item.quantity;
+      const cost_price = sku.cost_price;
+      const selling_price = item.selling_price;
+      
+      subtotal += selling_price * item.quantity;
+      total_profit += (selling_price - cost_price) * item.quantity;
 
       finalLineItems.push({
         product_id: product._id,
@@ -78,7 +83,8 @@ const checkout = async (req, res) => {
         product_name: product.club_country_name,
         size: sku.size,
         quantity: item.quantity,
-        snapshot_price,
+        cost_price,
+        selling_price,
         special_instruction: item.special_instruction,
       });
     }
@@ -89,6 +95,7 @@ const checkout = async (req, res) => {
       line_items: finalLineItems,
       subtotal,
       total,
+      total_profit,
       customer_name,
       customer_phone,
       customer_email,

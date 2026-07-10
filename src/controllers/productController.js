@@ -109,16 +109,21 @@ const updateProduct = async (req, res) => {
 const restockSku = async (req, res) => {
   try {
     const skuId = req.params.id;
-    const { quantity } = req.body;
+    const { quantity, cost_price } = req.body;
 
     if (!quantity || quantity <= 0) {
       return res.status(400).json({ error: 'Valid restock quantity required' });
     }
 
+    const updateFields = { $inc: { stock_available: quantity } };
+    if (cost_price !== undefined && cost_price !== null && cost_price >= 0) {
+      updateFields.$set = { cost_price };
+    }
+
     // INV-03: Unconditional increment via PATCH
     const sku = await SKU.findByIdAndUpdate(
       skuId,
-      { $inc: { stock_available: quantity } },
+      updateFields,
       { new: true }
     );
 

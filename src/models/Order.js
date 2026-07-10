@@ -26,7 +26,12 @@ const lineItemSchema = new mongoose.Schema(
       required: true,
       min: 1,
     },
-    snapshot_price: {
+    cost_price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    selling_price: {
       type: Number,
       required: true,
       min: 0,
@@ -55,6 +60,10 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+    },
+    total_profit: {
+      type: Number,
+      required: true,
     },
     customer_name: {
       type: String,

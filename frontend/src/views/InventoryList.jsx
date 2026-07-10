@@ -1,7 +1,70 @@
 import { useState } from 'react';
 import { useProducts, useProductSkus, useRestockSku } from '../api/products';
-import { Package, Plus } from 'lucide-react';
+import { Package, Plus, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const RestockModal = ({ sku, onClose, onRestock }) => {
+  const [quantity, setQuantity] = useState('');
+  const [costPrice, setCostPrice] = useState(sku.cost_price !== undefined ? sku.cost_price : '');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const qty = Number(quantity);
+    if (!qty || qty <= 0) return;
+    
+    onRestock({ 
+      skuId: sku._id, 
+      quantity: qty, 
+      cost_price: costPrice === '' ? undefined : Number(costPrice) 
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
+      <div className="bg-white border-4 border-black p-6 w-full max-w-md shadow-brutal" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="font-heading uppercase text-2xl font-[900] italic">RESTOCK: {sku.size}</h2>
+            <p className="font-body text-xs font-bold text-secondary uppercase mt-1">Current Stock: {sku.stock_available}</p>
+          </div>
+          <button onClick={onClose} className="p-2 border-2 border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
+            <X size={24} />
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block font-bold uppercase text-sm mb-2 text-secondary tracking-widest">Quantity to Add</label>
+            <input 
+              type="number" 
+              value={quantity} 
+              onChange={e => setQuantity(e.target.value)}
+              className="w-full border-2 border-black p-3 font-mono text-xl font-bold focus:border-accent focus:shadow-[4px_4px_0px_#FF5500] outline-none transition-all"
+              min="1"
+              required
+              autoFocus
+            />
+          </div>
+          <div>
+            <label className="block font-bold uppercase text-sm mb-2 text-secondary tracking-widest">New Cost Price (৳)</label>
+            <input 
+              type="number" 
+              value={costPrice} 
+              onChange={e => setCostPrice(e.target.value)}
+              className="w-full border-2 border-black p-3 font-mono text-xl font-bold focus:border-accent focus:shadow-[4px_4px_0px_#FF5500] outline-none transition-all"
+              min="0"
+            />
+            <p className="text-xs text-secondary mt-2 font-bold uppercase">Leave unchanged to keep current cost (৳{sku.cost_price || 0})</p>
+          </div>
+          
+          <button type="submit" className="w-full bg-accent text-white py-4 font-heading uppercase text-xl font-[900] italic tracking-wider shadow-[4px_4px_0px_#0A0A0A] hover:bg-black hover:shadow-[4px_4px_0px_#FF5500] hover:-translate-y-0.5 transition-all mt-4">
+            CONFIRM RESTOCK ↗
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const SkuBadge = ({ sku }) => {
   const isLowStock = sku.stock_available > 0 && sku.stock_available <= 3;
@@ -27,12 +90,12 @@ const SkuBadge = ({ sku }) => {
 const ProductCard = ({ product }) => {
   const { data: skuData, isLoading } = useProductSkus(product._id);
   const restock = useRestockSku();
+  const [restockSkuTarget, setRestockSkuTarget] = useState(null);
 
-  const handleRestock = (skuId) => {
-    const qty = window.prompt('Enter quantity to restock:');
-    if (qty && !isNaN(qty) && Number(qty) > 0) {
-      restock.mutate({ skuId, quantity: Number(qty) });
-    }
+  const handleRestock = ({ skuId, quantity, cost_price }) => {
+    restock.mutate({ skuId, quantity, cost_price }, {
+      onSuccess: () => setRestockSkuTarget(null)
+    });
   };
 
   let priceDisplay = `৳${product.base_price || 0}`;
@@ -67,7 +130,7 @@ const ProductCard = ({ product }) => {
               <span className="text-xs text-muted uppercase font-bold">Loading SKUs...</span>
             ) : (
               skuData?.skus.map((sku) => (
-                <button key={sku._id} onClick={() => handleRestock(sku._id)} title="Restock">
+                <button key={sku._id} onClick={() => setRestockSkuTarget(sku)} title="Restock" className="hover:-translate-y-0.5 transition-transform">
                   <SkuBadge sku={sku} />
                 </button>
               ))
@@ -75,6 +138,14 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
       </div>
+
+      {restockSkuTarget && (
+        <RestockModal 
+          sku={restockSkuTarget} 
+          onClose={() => setRestockSkuTarget(null)} 
+          onRestock={handleRestock} 
+        />
+      )}
     </div>
   );
 };

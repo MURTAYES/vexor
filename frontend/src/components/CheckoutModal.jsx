@@ -32,9 +32,16 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
   const { data, isLoading } = useProductSkus(product._id);
   const [selectedSku, setSelectedSku] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [sellingPrice, setSellingPrice] = useState(product.base_price || 0); // fallback
   const [instruction, setInstruction] = useState('');
   
   const addItem = useInvoiceStore(state => state.addItem);
+
+  useEffect(() => {
+    if (selectedSku && selectedSku.cost_price !== undefined) {
+      setSellingPrice(selectedSku.cost_price);
+    }
+  }, [selectedSku]);
 
   const handleAdd = () => {
     if (!selectedSku) return;
@@ -50,7 +57,8 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
       size: selectedSku.size,
       quantity,
       maxQty: selectedSku.stock,
-      unitPrice: product.base_price,
+      costPrice: selectedSku.cost_price || 0,
+      sellingPrice: Number(sellingPrice),
       specialInstruction: instruction
     });
     
@@ -88,7 +96,12 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
                 <button
                   key={sku._id}
                   disabled={isOutOfStock}
-                  onClick={() => setSelectedSku({ sku_id: sku.sku_id, size: sku.size, stock: sku.stock_available })}
+                  onClick={() => setSelectedSku({ 
+                    sku_id: sku.sku_id, 
+                    size: sku.size, 
+                    stock: sku.stock_available,
+                    cost_price: sku.cost_price 
+                  })}
                   className={`border-[1.5px] border-vexor-black px-4 py-[6px] font-heading font-bold uppercase transition-colors
                     ${isOutOfStock ? 'opacity-30 cursor-not-allowed bg-neutral shadow-none' : 'hover:border-vexor-orange hover:shadow-[3px_3px_0px_#FF5500] cursor-pointer'}
                     ${isSelected ? 'bg-vexor-black text-white shadow-[3px_3px_0px_#FF5500] border-vexor-black' : 'bg-white text-vexor-black shadow-[2px_2px_0px_#E5E5E5]'}
@@ -133,6 +146,21 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
                 style={{ borderRadius: 0 }}
               ><Plus size={16}/></button>
             </div>
+          </div>
+
+          <div className="mb-6 flex-shrink-0">
+            <p className="font-heading text-[0.7rem] tracking-[0.15em] text-secondary mb-2 uppercase">SELLING PRICE (৳)</p>
+            <input 
+              type="number" 
+              value={sellingPrice}
+              onChange={(e) => setSellingPrice(e.target.value)}
+              min="0"
+              className="w-[120px] p-[10px] px-3 font-mono text-[1rem] font-bold border-[2px] border-border-muted focus:border-vexor-orange focus:shadow-[3px_3px_0px_#FF5500] outline-none transition-all"
+              style={{ borderRadius: 0 }}
+            />
+            {selectedSku.cost_price !== undefined && (
+              <p className="font-body text-xs text-secondary mt-1 font-bold">Cost: ৳{selectedSku.cost_price}</p>
+            )}
           </div>
 
           <div className="mb-6 flex-shrink-0">
@@ -298,6 +326,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
         line_items: line_items.map(i => ({
           sku_id: i.skuId,
           quantity: i.quantity,
+          selling_price: i.sellingPrice,
           special_instruction: i.specialInstruction
         }))
       };
@@ -505,7 +534,7 @@ export default function CheckoutModal({ isOpen, onClose }) {
                               </div>
 
                               <div className="w-[120px] px-[14px] font-mono text-[0.9rem] font-bold text-secondary text-right shrink-0">
-                                ৳{item.unitPrice.toLocaleString()}
+                                ৳{item.sellingPrice.toLocaleString()}
                               </div>
                               
                               <div className="w-[120px] px-[14px] font-mono text-[1.05rem] font-[700] text-vexor-black text-right shrink-0">
