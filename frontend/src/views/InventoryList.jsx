@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useProducts, useProductSkus, useRestockSku } from '../api/products';
+import { useProducts, useProductSkus, useRestockSku, useDeleteProduct } from '../api/products';
 import { Package, Plus, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
