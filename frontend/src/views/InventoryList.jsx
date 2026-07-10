@@ -66,6 +66,53 @@ const RestockModal = ({ sku, onClose, onRestock }) => {
   );
 };
 
+const DeleteModal = ({ product, onClose, onDelete }) => {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+    onDelete(password, (errMessage) => setError(errMessage));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+      <div className="bg-white border-4 border-black shadow-[8px_8px_0px_#FF5500] p-6 max-w-sm w-full relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-black hover:text-accent">
+          <X className="w-6 h-6" />
+        </button>
+        
+        <h2 className="font-headline text-3xl italic font-[900] uppercase text-black mb-2">Delete Product</h2>
+        <p className="font-bold text-sm uppercase text-secondary mb-6">
+          Removing <span className="text-accent">{product.club_country_name}</span>. This action cannot be undone. Enter master password to confirm.
+        </p>
+
+        {error && <p className="text-red-600 font-bold text-xs uppercase mb-4">{error}</p>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block font-heading text-xs uppercase font-bold tracking-widest text-secondary mb-2">Master Password</label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)}
+              className="w-full border-2 border-black p-3 font-mono text-xl font-bold focus:border-accent focus:shadow-[4px_4px_0px_#FF5500] outline-none transition-all"
+            />
+          </div>
+          
+          <button type="submit" className="w-full bg-red-600 text-white py-4 font-heading uppercase text-xl font-[900] italic tracking-wider shadow-[4px_4px_0px_#0A0A0A] hover:bg-black hover:shadow-[4px_4px_0px_#DC2626] hover:-translate-y-0.5 transition-all mt-4">
+            CONFIRM DELETE ✕
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const SkuBadge = ({ sku }) => {
   const isLowStock = sku.stock_available > 0 && sku.stock_available <= 3;
   const isOutOfStock = sku.stock_available === 0;
@@ -90,11 +137,23 @@ const SkuBadge = ({ sku }) => {
 const ProductCard = ({ product }) => {
   const { data: skuData, isLoading } = useProductSkus(product._id);
   const restock = useRestockSku();
+  const deleteProd = useDeleteProduct();
   const [restockSkuTarget, setRestockSkuTarget] = useState(null);
+  const [showDelete, setShowDelete] = useState(false);
 
   const handleRestock = ({ skuId, quantity, cost_price }) => {
-    restock.mutate({ skuId, quantity, cost_price }, {
+    restock.mutate({ skuId, data: { quantity, cost_price } }, {
       onSuccess: () => setRestockSkuTarget(null)
+    });
+  };
+
+  const handleDelete = (password, setError) => {
+    deleteProd.mutate({ productId: product._id, password }, {
+      onSuccess: () => setShowDelete(false),
+      onError: (err) => {
+        const msg = err.response?.data?.error || 'Failed to delete product';
+        setError(msg);
+      }
     });
   };
 
@@ -115,9 +174,14 @@ const ProductCard = ({ product }) => {
       </div>
       
       <div className="flex-1">
-        <h3 className="font-heading uppercase text-xl mb-1 truncate" title={product.club_country_name}>
-          {product.club_country_name}
-        </h3>
+        <div className="flex justify-between items-start mb-1">
+          <h3 className="font-heading uppercase text-xl truncate pr-2" title={product.club_country_name}>
+            {product.club_country_name}
+          </h3>
+          <button onClick={() => setShowDelete(true)} className="text-muted hover:text-red-600 transition-colors" title="Delete Product">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
         <p className="text-muted text-sm font-bold uppercase mb-2">
           {product.season} • {product.kit_type} • {product.version}
         </p>
@@ -144,6 +208,13 @@ const ProductCard = ({ product }) => {
           sku={restockSkuTarget} 
           onClose={() => setRestockSkuTarget(null)} 
           onRestock={handleRestock} 
+        />
+      )}
+      {showDelete && (
+        <DeleteModal 
+          product={product} 
+          onClose={() => setShowDelete(false)} 
+          onDelete={handleDelete} 
         />
       )}
     </div>

@@ -148,9 +148,37 @@ const uploadImage = (req, res) => {
   res.status(200).json({ url: fileUrl });
 };
 
+const deleteProduct = async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (password !== 'vexor') {
+      return res.status(403).json({ error: 'Invalid master password' });
+    }
+
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Optional: Check if product has associated orders here if needed, but not specified.
+    // We will just delete the product and its SKUs.
+    await SKU.deleteMany({ product_id: productId });
+    await Product.findByIdAndDelete(productId);
+
+    await clearCacheKeys('catalog:*');
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    logger.error({ err: error }, 'Error deleting product');
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   restockSku,
   uploadImage,
+  deleteProduct,
 };

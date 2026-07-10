@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { createProduct, updateProduct, restockSku, uploadImage } = require('../controllers/productController');
+const { createProduct, updateProduct, restockSku, uploadImage, deleteProduct } = require('../controllers/productController');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -41,6 +41,7 @@ router.use(requireAuth); // All mutation routes require auth
 router.post('/image', upload.single('image'), uploadImage);
 router.post('/', createProduct);
 router.put('/:id', updateProduct);
+router.delete('/:id', deleteProduct);
 router.patch('/skus/:id/restock', restockSku);
 
 module.exports = router;

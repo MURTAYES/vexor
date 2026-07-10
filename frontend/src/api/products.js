@@ -71,12 +71,29 @@ export const useCreateProduct = () => {
 export const useRestockSku = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ skuId, quantity, cost_price }) => {
-      const { data } = await apiClient.patch(`/products/skus/${skuId}/restock`, { quantity, cost_price });
-      return data;
+    mutationFn: async ({ skuId, data }) => {
+      const response = await apiClient.patch(`/products/skus/${skuId}/restock`, data);
+      return response.data;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+};
+
+export const useDeleteProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ productId, password }) => {
+      const response = await apiClient.delete(`/products/${productId}`, {
+        data: { password }
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 };
