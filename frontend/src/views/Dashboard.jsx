@@ -3,9 +3,12 @@ import { useDashboardStats } from '../api/dashboard';
 import { useInvoices } from '../api/orders';
 import { downloadOrderPdf } from '../api/orders';
 import CheckoutModal from '../components/CheckoutModal';
+import RevenueChart from '../components/dashboard/RevenueChart';
+import PerformancePieChart from '../components/dashboard/PerformancePieChart';
+import TopProductsList from '../components/dashboard/TopProductsList';
 
 const Dashboard = () => {
-  const [timeRange, setTimeRange] = useState(7); // default 7 days
+  const [timeRange, setTimeRange] = useState('7d'); // default 7 days
   const { data: stats, isLoading: statsLoading } = useDashboardStats(timeRange);
   const { data: ordersData, isLoading: ordersLoading } = useInvoices(1, 5);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -28,8 +31,8 @@ const Dashboard = () => {
           <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-[900] italic uppercase text-vexor-black leading-none tracking-tight">PERFORMANCE <br/> OVERVIEW</h2>
           <div className="flex items-center gap-4 mt-4">
             <span className="font-mono text-[0.75rem] md:text-sm text-secondary font-bold tracking-[0.25em]">DATE RANGE:</span>
-            <div className="flex bg-white border-[2px] border-vexor-black">
-              {[ {l: 'TODAY', v: 1}, {l: '7D', v: 7}, {l: '30D', v: 30}, {l: 'ALL', v: 0} ].map(r => (
+            <div className="flex bg-white border-[2px] border-vexor-black flex-wrap">
+              {[ {l: 'TODAY', v: 'today'}, {l: '7D', v: '7d'}, {l: '30D', v: '30d'}, {l: 'MONTHLY', v: 'monthly'}, {l: 'YEARLY', v: 'yearly'} ].map(r => (
                 <button
                   key={r.v}
                   onClick={() => setTimeRange(r.v)}
@@ -126,76 +129,15 @@ const Dashboard = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        
-        {/* Sales Chart */}
-        <div className="bg-white border-[3px] border-vexor-black shadow-[6px_6px_0px_#0A0A0A] p-6 h-[320px] flex flex-col" style={{ borderRadius: 0 }}>
-          <h3 className="font-headline text-2xl font-[900] italic uppercase tracking-wider mb-6 text-vexor-black">
-            DAILY REVENUE <span className="text-vexor-orange">//</span>
-          </h3>
-          <div className="flex-1 flex items-end gap-2 border-l-[2px] border-b-[2px] border-vexor-black pb-2 pl-2 relative">
-            {!statsLoading && stats?.daily_metrics ? (
-              stats.daily_metrics.length > 0 ? (
-                (() => {
-                  const maxSales = Math.max(...stats.daily_metrics.map(d => d.sales), 1);
-                  return stats.daily_metrics.map((day, i) => {
-                    const heightPercent = (day.sales / maxSales) * 100;
-                    return (
-                      <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                        <div 
-                          className="w-full bg-vexor-black hover:bg-vexor-orange transition-colors min-h-[4px]"
-                          style={{ height: `${heightPercent}%` }}
-                        />
-                        {/* Tooltip */}
-                        <div className="absolute -top-10 bg-vexor-black text-white text-xs font-mono px-2 py-1 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10 transition-opacity">
-                          ৳{day.sales.toLocaleString()} <br/> {day._id}
-                        </div>
-                      </div>
-                    );
-                  });
-                })()
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em]">NO DATA</div>
-              )
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em] animate-pulse">LOADING...</div>
-            )}
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div className="lg:col-span-3">
+          <RevenueChart data={stats?.daily_metrics} />
         </div>
-
-        {/* Profit Chart */}
-        <div className="bg-white border-[3px] border-vexor-black shadow-[6px_6px_0px_#0A0A0A] p-6 h-[320px] flex flex-col" style={{ borderRadius: 0 }}>
-          <h3 className="font-headline text-2xl font-[900] italic uppercase tracking-wider mb-6 text-vexor-black">
-            DAILY PROFIT <span className="text-vexor-orange">//</span>
-          </h3>
-          <div className="flex-1 flex items-end gap-2 border-l-[2px] border-b-[2px] border-vexor-black pb-2 pl-2 relative">
-            {!statsLoading && stats?.daily_metrics ? (
-              stats.daily_metrics.length > 0 ? (
-                (() => {
-                  const maxProfit = Math.max(...stats.daily_metrics.map(d => d.profit), 1);
-                  return stats.daily_metrics.map((day, i) => {
-                    const heightPercent = (day.profit / maxProfit) * 100;
-                    return (
-                      <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                        <div 
-                          className="w-full bg-vexor-orange hover:bg-vexor-black transition-colors min-h-[4px]"
-                          style={{ height: `${heightPercent}%` }}
-                        />
-                        {/* Tooltip */}
-                        <div className="absolute -top-10 bg-vexor-orange text-white text-xs font-mono px-2 py-1 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10 transition-opacity">
-                          ৳{day.profit.toLocaleString()} <br/> {day._id}
-                        </div>
-                      </div>
-                    );
-                  });
-                })()
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em]">NO DATA</div>
-              )
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em] animate-pulse">LOADING...</div>
-            )}
-          </div>
+        <div className="lg:col-span-1">
+          <PerformancePieChart data={stats?.top_products} />
+        </div>
+        <div className="lg:col-span-2">
+          <TopProductsList data={stats?.top_products} />
         </div>
       </div>
 

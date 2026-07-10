@@ -366,7 +366,7 @@ const InvoiceDocument = ({ order }) => {
       ),
 
       // 4. Totals & Notes
-      React.createElement(View, { style: styles.bottomSection, wrap: false },
+      React.createElement(View, { style: styles.bottomSection },
         // Notes
         React.createElement(View, { style: styles.notesBox },
           React.createElement(Text, { style: styles.notesTitle }, 'NOTES / TERMS:'),

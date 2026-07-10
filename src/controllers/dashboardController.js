@@ -4,15 +4,30 @@ const logger = require('../utils/logger');
 
 const getDashboardStats = async (req, res) => {
   try {
-    const rangeDays = parseInt(req.query.range) || 1; // Default to 1 (Today)
-    
+    const range = req.query.range || '7d';
     let startDate;
-    if (rangeDays === 0) {
-      // 0 means All Time
-      startDate = new Date(0);
-    } else {
+    let format = "%Y-%m-%d";
+
+    if (range === 'today') {
       startDate = new Date();
-      startDate.setDate(startDate.getDate() - rangeDays + 1);
+      startDate.setHours(0, 0, 0, 0);
+    } else if (range === '30d') {
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 29);
+      startDate.setHours(0, 0, 0, 0);
+    } else if (range === 'monthly') {
+      startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - 11);
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
+      format = "%Y-%m";
+    } else if (range === 'yearly') {
+      startDate = new Date(0); // All time
+      format = "%Y";
+    } else {
+      // 7d default
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 6);
       startDate.setHours(0, 0, 0, 0);
     }
 
@@ -23,7 +38,7 @@ const getDashboardStats = async (req, res) => {
         { $facet: {
             daily_metrics: [
               { $group: {
-                  _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "Asia/Dhaka" } },
+                  _id: { $dateToString: { format: format, date: "$createdAt", timezone: "Asia/Dhaka" } },
                   sales: { $sum: "$total" },
                   profit: { $sum: "$total_profit" }
               }},
@@ -43,6 +58,15 @@ const getDashboardStats = async (req, res) => {
                   _id: null,
                   count: { $sum: "$line_items.quantity" }
               }}
+            ],
+            top_products: [
+              { $unwind: "$line_items" },
+              { $group: {
+                  _id: "$line_items.product_name",
+                  count: { $sum: "$line_items.quantity" }
+              }},
+              { $sort: { count: -1 } },
+              { $limit: 5 }
             ]
         }}
       ]),
@@ -63,6 +87,7 @@ const getDashboardStats = async (req, res) => {
       total_profit: totals.total_profit,
       jerseys_printed: printed.count,
       daily_metrics: agg.daily_metrics,
+      top_products: agg.top_products || [],
       low_stock_alerts,
       total_skus
     });
