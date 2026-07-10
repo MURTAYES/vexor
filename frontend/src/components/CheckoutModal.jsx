@@ -382,9 +382,10 @@ export default function CheckoutModal({ isOpen, onClose }) {
   const canSubmit = customer_name.trim() !== '' && customer_phone.trim() !== '' && line_items.length > 0;
 
   const handleConfirm = async () => {
-    const errs = { name: !customer_name.trim(), phone: !customer_phone.trim() };
+    const isEmailValid = customer_email === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer_email);
+    const errs = { name: !customer_name.trim(), phone: !customer_phone.trim(), email: !isEmailValid };
     setValidationErrors(errs);
-    if (errs.name || errs.phone || line_items.length === 0) return;
+    if (errs.name || errs.phone || errs.email || line_items.length === 0) return;
 
     setIsSubmitting(true);
     setSubmitError(null);
@@ -425,6 +426,15 @@ export default function CheckoutModal({ isOpen, onClose }) {
           setSubmitError({ type: 'conflict', details: errorData.details });
         } catch {
           setSubmitError({ type: 'conflict', details: null });
+        }
+      } else if (err.response?.status === 400) {
+        try {
+          const text = await (typeof err.response.data.text === 'function' ? err.response.data.text() : JSON.stringify(err.response.data));
+          const errorData = typeof err.response.data === 'string' ? JSON.parse(text) : JSON.parse(text);
+          const messages = errorData.error ? errorData.error.map(e => `${e.path.join('.')}: ${e.message}`).join(', ') : 'Invalid request';
+          setSubmitError({ type: 'error', message: `VALIDATION ERROR: ${messages}` });
+        } catch {
+          setSubmitError({ type: 'error', message: 'CHECKOUT FAILED: INVALID DATA' });
         }
       } else {
         setSubmitError({ type: 'error', message: 'CHECKOUT FAILED' });
@@ -482,6 +492,15 @@ export default function CheckoutModal({ isOpen, onClose }) {
             </div>
           )}
 
+          {submitError?.type === 'error' && (
+            <div className="bg-[#FEF2F2] border-[2px] border-[#DC2626] shadow-[4px_4px_0px_#DC2626] p-4 md:p-5 mb-6" style={{ borderRadius: 0 }}>
+              <div className="font-headline text-[1.1rem] italic font-[900] text-[#DC2626] uppercase flex items-center mb-2"><AlertTriangle size={20} className="mr-2"/> ERROR</div>
+              <div className="font-body text-[0.85rem] font-bold text-vexor-black uppercase">
+                {submitError.message}
+              </div>
+            </div>
+          )}
+
           {/* Section: Customer Details */}
           <div className="bg-white border-[2px] border-vexor-black shadow-[4px_4px_0px_#E5E5E5] p-5 md:p-6 mb-6" style={{ borderRadius: 0 }}>
             <div className="font-heading italic font-[900] text-[0.9rem] border-b-[2px] border-vexor-black pb-3 mb-5 uppercase text-vexor-black tracking-wide">
@@ -513,12 +532,14 @@ export default function CheckoutModal({ isOpen, onClose }) {
                 />
               </div>
               <div>
-                <label className="block font-heading text-[0.65rem] tracking-[0.15em] font-bold uppercase mb-[6px] text-secondary">EMAIL (OPTIONAL)</label>
+                <label className={`block font-heading text-[0.65rem] tracking-[0.15em] font-bold uppercase mb-[6px] ${validationErrors.email ? 'text-[#DC2626]' : 'text-secondary'}`}>EMAIL (OPTIONAL)</label>
                 <input 
                   type="email" 
                   value={customer_email}
-                  onChange={e => setCustomerDetails({ customer_email: e.target.value })}
-                  className="w-full border-[2px] border-border-muted p-[10px] px-[14px] font-body text-[0.85rem] font-bold text-vexor-black outline-none shadow-[2px_2px_0px_#E5E5E5] focus:border-vexor-black focus:shadow-[4px_4px_0px_#0A0A0A] transition-all"
+                  onChange={e => { setCustomerDetails({ customer_email: e.target.value }); setValidationErrors(prev => ({...prev, email: false})); }}
+                  className={`w-full border-[2px] p-[10px] px-[14px] font-body text-[0.85rem] font-bold text-vexor-black outline-none transition-all ${
+                    validationErrors.email ? 'border-[#DC2626] shadow-[3px_3px_0px_#DC2626]' : 'border-border-muted shadow-[2px_2px_0px_#E5E5E5] focus:border-vexor-black focus:shadow-[4px_4px_0px_#0A0A0A]'
+                  }`}
                   style={{ borderRadius: 0 }}
                 />
               </div>
