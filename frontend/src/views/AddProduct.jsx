@@ -27,8 +27,9 @@ const AddProduct = () => {
   
   const uploadImage = useUploadImage();
   const createProduct = useCreateProduct();
+  const [globalCost, setGlobalCost] = useState('');
 
-  const { register, handleSubmit, formState: { errors }, getValues } = useForm({
+  const { register, handleSubmit, formState: { errors }, getValues, setValue } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
       kit_type: 'Home',
@@ -177,7 +178,30 @@ const AddProduct = () => {
 
             {/* Initial Stock */}
             <div>
-              <label className="block font-heading text-xl uppercase mb-4 border-b-2 border-black pb-2">Initial Stock (Optional)</label>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 border-b-2 border-black pb-2 gap-4">
+                <label className="block font-heading text-xl uppercase">Initial Stock (Optional)</label>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-xs uppercase">Base Cost ৳:</span>
+                  <input 
+                    type="number" 
+                    value={globalCost}
+                    onChange={(e) => setGlobalCost(e.target.value)}
+                    className="border-2 border-black p-1 w-24 text-sm"
+                    placeholder="e.g. 1000"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      if (globalCost) {
+                        SIZES.forEach(s => setValue(`initial_stock.${s}.cost_price`, Number(globalCost)));
+                      }
+                    }}
+                    className="bg-black text-white px-3 py-1 font-bold text-xs uppercase hover:bg-accent"
+                  >
+                    Apply All
+                  </button>
+                </div>
+              </div>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
                 {SIZES.map(size => (
                   <div key={size} className="flex flex-col gap-1">
