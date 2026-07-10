@@ -2,8 +2,10 @@ const React = require('react');
 const { Document, Page, View, Text, Image, StyleSheet, renderToBuffer } = require('@react-pdf/renderer');
 const path = require('path');
 
-// Resolve the logo path to logo.png
-const LOGO_PATH = path.resolve(__dirname, '../../frontend/src/assets/logo.png');
+const fs = require('fs');
+
+// Read the logo as a base64 string so it embeds perfectly in the PDF on all OS
+const LOGO_BASE64 = `data:image/png;base64,${fs.readFileSync(path.resolve(__dirname, '../../frontend/src/assets/logo.png')).toString('base64')}`;
 
 const styles = StyleSheet.create({
   page: {
@@ -271,7 +273,7 @@ const formatDate = (date) => {
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
 };
 
-const formatCurrency = (amount) => `৳${Number(amount).toLocaleString('en-IN')}`;
+const formatCurrency = (amount) => `BDT ${Number(amount).toLocaleString('en-IN')}`;
 
 const InvoiceDocument = ({ order }) => {
   return React.createElement(Document, null,
@@ -282,7 +284,7 @@ const InvoiceDocument = ({ order }) => {
         React.createElement(View, { style: styles.headerBox },
           React.createElement(View, null,
             React.createElement(View, { style: styles.logoContainer },
-              React.createElement(Image, { src: LOGO_PATH, style: styles.logoImage })
+              React.createElement(Image, { src: LOGO_BASE64, style: styles.logoImage })
             ),
             React.createElement(Text, { style: styles.invoiceTitle }, 'INVOICE')
           ),
@@ -385,11 +387,11 @@ const InvoiceDocument = ({ order }) => {
               ),
               React.createElement(View, { style: styles.calcRow },
                 React.createElement(Text, { style: styles.calcLabel }, 'TAX (0%)'),
-                React.createElement(Text, { style: styles.calcValue }, '৳0')
+                React.createElement(Text, { style: styles.calcValue }, 'BDT 0')
               ),
               React.createElement(View, { style: styles.calcRow },
                 React.createElement(Text, { style: styles.calcLabel }, 'SHIPPING'),
-                React.createElement(Text, { style: styles.calcValue }, '৳0')
+                React.createElement(Text, { style: styles.calcValue }, 'BDT 0')
               ),
               React.createElement(View, { style: styles.grandTotalDivider },
                 React.createElement(Text, { style: styles.grandTotalLabel }, 'GRAND TOTAL'),
