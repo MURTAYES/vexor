@@ -5,7 +5,8 @@ import { downloadOrderPdf } from '../api/orders';
 import CheckoutModal from '../components/CheckoutModal';
 
 const Dashboard = () => {
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const [timeRange, setTimeRange] = useState(7); // default 7 days
+  const { data: stats, isLoading: statsLoading } = useDashboardStats(timeRange);
   const { data: ordersData, isLoading: ordersLoading } = useInvoices(1, 5);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -25,7 +26,21 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-[#F2F2F2] p-6 md:p-8 border-[3px] border-vexor-black shadow-[6px_6px_0px_#0A0A0A]" style={{ borderRadius: 0 }}>
         <div>
           <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-[900] italic uppercase text-vexor-black leading-none tracking-tight">PERFORMANCE <br/> OVERVIEW</h2>
-          <p className="font-mono text-[0.75rem] md:text-sm text-secondary mt-3 font-bold tracking-[0.25em]">LIVE METRICS // REAL-TIME DATA FEED</p>
+          <div className="flex items-center gap-4 mt-4">
+            <span className="font-mono text-[0.75rem] md:text-sm text-secondary font-bold tracking-[0.25em]">DATE RANGE:</span>
+            <div className="flex bg-white border-[2px] border-vexor-black">
+              {[ {l: 'TODAY', v: 1}, {l: '7D', v: 7}, {l: '30D', v: 30}, {l: 'ALL', v: 0} ].map(r => (
+                <button
+                  key={r.v}
+                  onClick={() => setTimeRange(r.v)}
+                  className={`px-3 py-1 font-heading text-xs font-bold transition-colors ${timeRange === r.v ? 'bg-vexor-black text-white' : 'bg-transparent text-vexor-black hover:bg-neutral'}`}
+                  style={{ borderRadius: 0 }}
+                >
+                  {r.l}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
         <div className="w-full md:w-auto mt-4 md:mt-0">
           <button 
@@ -41,37 +56,50 @@ const Dashboard = () => {
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         
-        {/* Metric 1: Today's Invoices */}
+        {/* Metric 1: Total Revenue */}
         <div className="bg-white border-[3px] border-vexor-black p-6 flex flex-col justify-between h-[180px] shadow-[4px_4px_0px_#E5E5E5] hover:shadow-[4px_4px_0px_#0A0A0A] transition-shadow" style={{ borderRadius: 0 }}>
           <div className="flex justify-between items-start">
-            <h3 className="font-heading text-sm font-[800] uppercase text-secondary tracking-[0.15em]">TODAY'S INVOICES</h3>
-            <span className="material-symbols-outlined text-vexor-orange text-[28px]">trending_up</span>
+            <h3 className="font-heading text-sm font-[800] uppercase text-secondary tracking-[0.15em]">TOTAL REVENUE</h3>
+            <span className="material-symbols-outlined text-vexor-orange text-[28px]">account_balance_wallet</span>
           </div>
           <div>
-            <div className="text-[48px] font-headline font-[900] italic uppercase leading-none tracking-tighter mb-2 text-vexor-black">
-              {statsLoading ? '—' : stats?.today_invoices || 0}
+            <div className="text-[40px] font-headline font-[900] italic uppercase leading-none tracking-tighter mb-2 text-vexor-black overflow-hidden text-ellipsis whitespace-nowrap">
+              {statsLoading ? '—' : `৳${stats?.total_sales?.toLocaleString() || 0}`}
             </div>
             <div className="flex items-center gap-2">
-              <span className="bg-[#F2F2F2] text-vexor-black font-mono text-[10px] font-bold px-2 py-1 tracking-widest">ORDERS PLACED TODAY</span>
-              <svg className="ml-auto" height="20" viewBox="0 0 60 20" width="60">
-                <path className="sparkline" d="M0 15 Q 10 5, 20 10 T 40 5 T 60 2" />
-              </svg>
+              <span className="bg-[#F2F2F2] text-vexor-black font-mono text-[10px] font-bold px-2 py-1 tracking-widest">GROSS SALES</span>
             </div>
           </div>
         </div>
 
-        {/* Metric 2: Total SKUs */}
+        {/* Metric 2: Total Profit */}
         <div className="bg-white border-[3px] border-vexor-black p-6 flex flex-col justify-between h-[180px] shadow-[4px_4px_0px_#E5E5E5] hover:shadow-[4px_4px_0px_#0A0A0A] transition-shadow" style={{ borderRadius: 0 }}>
           <div className="flex justify-between items-start">
-            <h3 className="font-heading text-sm font-[800] uppercase text-secondary tracking-[0.15em]">TOTAL SKU COUNT</h3>
-            <span className="material-symbols-outlined text-vexor-black text-[28px]">inventory_2</span>
+            <h3 className="font-heading text-sm font-[800] uppercase text-secondary tracking-[0.15em]">TOTAL PROFIT</h3>
+            <span className="material-symbols-outlined text-vexor-black text-[28px]">trending_up</span>
+          </div>
+          <div>
+            <div className="text-[40px] font-headline font-[900] italic uppercase leading-none tracking-tighter mb-2 text-vexor-black overflow-hidden text-ellipsis whitespace-nowrap">
+              {statsLoading ? '—' : `৳${stats?.total_profit?.toLocaleString() || 0}`}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="bg-vexor-black text-white font-mono text-[10px] font-bold px-2 py-1 tracking-widest">NET MARGIN</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 3: Jerseys Printed */}
+        <div className="bg-white border-[3px] border-vexor-black p-6 flex flex-col justify-between h-[180px] shadow-[4px_4px_0px_#E5E5E5] hover:shadow-[4px_4px_0px_#0A0A0A] transition-shadow" style={{ borderRadius: 0 }}>
+          <div className="flex justify-between items-start">
+            <h3 className="font-heading text-sm font-[800] uppercase text-secondary tracking-[0.15em]">JERSEYS PRINTED</h3>
+            <span className="material-symbols-outlined text-vexor-orange text-[28px]">imagesearch_roller</span>
           </div>
           <div>
             <div className="text-[48px] font-headline font-[900] italic uppercase leading-none tracking-tighter mb-2 text-vexor-black">
-              {statsLoading ? '—' : stats?.total_skus || 0}
+              {statsLoading ? '—' : stats?.jerseys_printed || 0}
             </div>
             <div className="flex items-center gap-2">
-              <span className="bg-[#F2F2F2] text-vexor-black font-mono text-[10px] font-bold px-2 py-1 tracking-widest">ACTIVE IN CATALOG</span>
+              <span className="bg-[#F2F2F2] text-vexor-black font-mono text-[10px] font-bold px-2 py-1 tracking-widest">CUSTOMIZED ITEMS</span>
             </div>
           </div>
         </div>
@@ -93,6 +121,80 @@ const Dashboard = () => {
                 <span className="bg-[#F2F2F2] text-vexor-black font-mono text-[10px] font-bold px-2 py-1 tracking-widest">ALL STOCK HEALTHY</span>
               )}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        
+        {/* Sales Chart */}
+        <div className="bg-white border-[3px] border-vexor-black shadow-[6px_6px_0px_#0A0A0A] p-6 h-[320px] flex flex-col" style={{ borderRadius: 0 }}>
+          <h3 className="font-headline text-2xl font-[900] italic uppercase tracking-wider mb-6 text-vexor-black">
+            DAILY REVENUE <span className="text-vexor-orange">//</span>
+          </h3>
+          <div className="flex-1 flex items-end gap-2 border-l-[2px] border-b-[2px] border-vexor-black pb-2 pl-2 relative">
+            {!statsLoading && stats?.daily_metrics ? (
+              stats.daily_metrics.length > 0 ? (
+                (() => {
+                  const maxSales = Math.max(...stats.daily_metrics.map(d => d.sales), 1);
+                  return stats.daily_metrics.map((day, i) => {
+                    const heightPercent = (day.sales / maxSales) * 100;
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
+                        <div 
+                          className="w-full bg-vexor-black hover:bg-vexor-orange transition-colors min-h-[4px]"
+                          style={{ height: `${heightPercent}%` }}
+                        />
+                        {/* Tooltip */}
+                        <div className="absolute -top-10 bg-vexor-black text-white text-xs font-mono px-2 py-1 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10 transition-opacity">
+                          ৳{day.sales.toLocaleString()} <br/> {day._id}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em]">NO DATA</div>
+              )
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em] animate-pulse">LOADING...</div>
+            )}
+          </div>
+        </div>
+
+        {/* Profit Chart */}
+        <div className="bg-white border-[3px] border-vexor-black shadow-[6px_6px_0px_#0A0A0A] p-6 h-[320px] flex flex-col" style={{ borderRadius: 0 }}>
+          <h3 className="font-headline text-2xl font-[900] italic uppercase tracking-wider mb-6 text-vexor-black">
+            DAILY PROFIT <span className="text-vexor-orange">//</span>
+          </h3>
+          <div className="flex-1 flex items-end gap-2 border-l-[2px] border-b-[2px] border-vexor-black pb-2 pl-2 relative">
+            {!statsLoading && stats?.daily_metrics ? (
+              stats.daily_metrics.length > 0 ? (
+                (() => {
+                  const maxProfit = Math.max(...stats.daily_metrics.map(d => d.profit), 1);
+                  return stats.daily_metrics.map((day, i) => {
+                    const heightPercent = (day.profit / maxProfit) * 100;
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
+                        <div 
+                          className="w-full bg-vexor-orange hover:bg-vexor-black transition-colors min-h-[4px]"
+                          style={{ height: `${heightPercent}%` }}
+                        />
+                        {/* Tooltip */}
+                        <div className="absolute -top-10 bg-vexor-orange text-white text-xs font-mono px-2 py-1 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10 transition-opacity">
+                          ৳{day.profit.toLocaleString()} <br/> {day._id}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em]">NO DATA</div>
+              )
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center font-heading font-bold text-secondary text-sm tracking-[0.2em] animate-pulse">LOADING...</div>
+            )}
           </div>
         </div>
       </div>
