@@ -89,5 +89,5 @@ Phases execute in numeric order: 6 → 7 → 8 → 9
 |-------|----------------|--------|-----------| 
 | 6. Schema Migration & Per-Size Pricing | 1/1 | Complete | Yes |
 | 7. Restock Modal & Selling Price | 1/1 | Complete | Yes |
-| 8. Name Printing | 0/0 | Not started | - |
+| 8. Name Printing | 1/1 | Complete | Yes |
 | 9. Analytics Dashboard | 0/0 | Not started | - |

@@ -40,6 +40,12 @@ const lineItemSchema = new mongoose.Schema(
       type: String,
       maxlength: 300,
     },
+    printing: {
+      is_printed: { type: Boolean, default: false },
+      name: { type: String, trim: true },
+      number: { type: String, trim: true },
+      charge: { type: Number, min: 0, default: 0 },
+    },
   },
   { _id: false } // No need for separate ObjectIds for embedded documents
 );

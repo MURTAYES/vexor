@@ -321,7 +321,9 @@ const InvoiceDocument = ({ order }) => {
           ),
           
           ...order.line_items.map((item, idx) => {
-            const lineTotal = item.snapshot_price * item.quantity;
+            const printCharge = item.printing?.is_printed ? (item.printing.charge || 0) : 0;
+            const unitPrice = item.selling_price + printCharge;
+            const lineTotal = unitPrice * item.quantity;
             const rowStyle = idx % 2 === 0 ? styles.tableRow : styles.tableRowAlt;
 
             const elements = [
@@ -331,10 +333,21 @@ const InvoiceDocument = ({ order }) => {
                 React.createElement(Text, { style: { ...styles.tableCellBold, ...styles.colItem } }, item.product_name || `JERSEY`),
                 React.createElement(Text, { style: { ...styles.tableCell, ...styles.colSize } }, item.size),
                 React.createElement(Text, { style: { ...styles.tableCell, ...styles.colQty } }, String(item.quantity).padStart(2, '0')),
-                React.createElement(Text, { style: { ...styles.tableCell, ...styles.colPrice } }, formatCurrency(item.snapshot_price)),
+                React.createElement(Text, { style: { ...styles.tableCell, ...styles.colPrice } }, formatCurrency(unitPrice)),
                 React.createElement(Text, { style: { ...styles.tableCellBold, ...styles.colTotal } }, formatCurrency(lineTotal))
               )
             ];
+
+            if (item.printing && item.printing.is_printed) {
+              elements.push(
+                React.createElement(View, { style: styles.instructionRow, key: `print-${idx}` },
+                  React.createElement(Text, { style: styles.instructionText }, 
+                    React.createElement(Text, { style: styles.instructionLabel }, 'PRINT: '), 
+                    `NAME: ${item.printing.name || 'N/A'} | NUMBER: ${item.printing.number || 'N/A'}`
+                  )
+                )
+              );
+            }
 
             if (item.special_instruction) {
               elements.push(

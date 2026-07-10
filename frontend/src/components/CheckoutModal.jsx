@@ -35,6 +35,11 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
   const [sellingPrice, setSellingPrice] = useState(product.base_price || 0); // fallback
   const [instruction, setInstruction] = useState('');
   
+  const [isPrinted, setIsPrinted] = useState(false);
+  const [printName, setPrintName] = useState('');
+  const [printNumber, setPrintNumber] = useState('');
+  const [printCharge, setPrintCharge] = useState(200);
+
   const addItem = useInvoiceStore(state => state.addItem);
 
   useEffect(() => {
@@ -59,6 +64,12 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
       maxQty: selectedSku.stock,
       costPrice: selectedSku.cost_price || 0,
       sellingPrice: Number(sellingPrice),
+      printing: {
+        isPrinted,
+        name: printName,
+        number: printNumber,
+        charge: Number(printCharge)
+      },
       specialInstruction: instruction
     });
     
@@ -160,6 +171,56 @@ const ProductSelector = ({ product, onCancel, onClose }) => {
             />
             {selectedSku.cost_price !== undefined && (
               <p className="font-body text-xs text-secondary mt-1 font-bold">Cost: ৳{selectedSku.cost_price}</p>
+            )}
+          </div>
+
+          <div className="mb-6 flex-shrink-0">
+            <label className="flex items-center gap-2 cursor-pointer group w-max">
+              <input 
+                type="checkbox" 
+                checked={isPrinted}
+                onChange={(e) => setIsPrinted(e.target.checked)}
+                className="w-5 h-5 accent-vexor-black cursor-pointer border-[2px] border-vexor-black"
+              />
+              <span className="font-heading text-[0.8rem] font-[900] tracking-widest text-vexor-black uppercase group-hover:text-vexor-orange transition-colors">PRINT NAME & NUMBER</span>
+            </label>
+
+            {isPrinted && (
+              <div className="mt-4 p-4 border-[2px] border-vexor-black bg-neutral flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-heading text-[0.65rem] tracking-[0.15em] font-bold uppercase mb-[6px] text-secondary">NAME</label>
+                    <input 
+                      type="text" 
+                      value={printName}
+                      onChange={e => setPrintName(e.target.value)}
+                      className="w-full border-[2px] border-vexor-black p-[8px] font-body text-[0.85rem] font-bold uppercase outline-none focus:border-vexor-orange"
+                      style={{ borderRadius: 0 }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-heading text-[0.65rem] tracking-[0.15em] font-bold uppercase mb-[6px] text-secondary">NUMBER</label>
+                    <input 
+                      type="text" 
+                      value={printNumber}
+                      onChange={e => setPrintNumber(e.target.value)}
+                      className="w-full border-[2px] border-vexor-black p-[8px] font-body text-[0.85rem] font-bold uppercase outline-none focus:border-vexor-orange"
+                      style={{ borderRadius: 0 }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-heading text-[0.65rem] tracking-[0.15em] font-bold uppercase mb-[6px] text-secondary">PRINT CHARGE (৳)</label>
+                  <input 
+                    type="number" 
+                    value={printCharge}
+                    onChange={e => setPrintCharge(e.target.value)}
+                    min="0"
+                    className="w-full border-[2px] border-vexor-black p-[8px] font-mono text-[1rem] font-bold outline-none focus:border-vexor-orange"
+                    style={{ borderRadius: 0 }}
+                  />
+                </div>
+              </div>
             )}
           </div>
 
@@ -327,6 +388,12 @@ export default function CheckoutModal({ isOpen, onClose }) {
           sku_id: i.skuId,
           quantity: i.quantity,
           selling_price: i.sellingPrice,
+          printing: i.printing?.isPrinted ? {
+            is_printed: true,
+            name: i.printing.name,
+            number: i.printing.number,
+            charge: i.printing.charge
+          } : undefined,
           special_instruction: i.specialInstruction
         }))
       };
@@ -508,6 +575,15 @@ export default function CheckoutModal({ isOpen, onClose }) {
                                 </div>
                               </div>
 
+                              {/* Print Details */}
+                              {item.printing?.isPrinted && (
+                                <div className="absolute top-2 left-[54px] z-10 flex gap-2">
+                                  <div className="bg-vexor-orange text-white text-[0.6rem] font-bold px-2 py-0.5 rounded-sm uppercase tracking-widest shadow-sm">
+                                    PRINT: {item.printing.name || '-'} {item.printing.number || ''}
+                                  </div>
+                                </div>
+                              )}
+
                               <div className="w-[80px] px-[14px] shrink-0">
                                 <div className="font-heading font-[900] text-[1.1rem] text-vexor-black uppercase text-center border-[2px] border-border-muted bg-neutral py-1">
                                   {item.size}
@@ -534,7 +610,10 @@ export default function CheckoutModal({ isOpen, onClose }) {
                               </div>
 
                               <div className="w-[120px] px-[14px] font-mono text-[0.9rem] font-bold text-secondary text-right shrink-0">
-                                ৳{item.sellingPrice.toLocaleString()}
+                                <div>৳{item.sellingPrice.toLocaleString()}</div>
+                                {item.printing?.isPrinted && (
+                                  <div className="text-[0.65rem] text-vexor-orange mt-0.5">+ ৳{item.printing.charge.toLocaleString()}</div>
+                                )}
                               </div>
                               
                               <div className="w-[120px] px-[14px] font-mono text-[1.05rem] font-[700] text-vexor-black text-right shrink-0">

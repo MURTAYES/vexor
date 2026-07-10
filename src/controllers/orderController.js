@@ -16,6 +16,12 @@ const checkoutSchema = z.object({
     sku_id: z.string().min(1),
     quantity: z.number().int().min(1),
     selling_price: z.number().min(0),
+    printing: z.object({
+      is_printed: z.boolean(),
+      name: z.string().optional(),
+      number: z.string().optional(),
+      charge: z.number().min(0).optional(),
+    }).optional(),
     special_instruction: z.string().max(300).optional(),
   })).min(1),
 });
@@ -73,9 +79,10 @@ const checkout = async (req, res) => {
 
       const cost_price = sku.cost_price;
       const selling_price = item.selling_price;
+      const print_charge = item.printing?.is_printed ? (item.printing.charge || 0) : 0;
       
-      subtotal += selling_price * item.quantity;
-      total_profit += (selling_price - cost_price) * item.quantity;
+      subtotal += (selling_price + print_charge) * item.quantity;
+      total_profit += (selling_price - cost_price + print_charge) * item.quantity;
 
       finalLineItems.push({
         product_id: product._id,
@@ -85,6 +92,7 @@ const checkout = async (req, res) => {
         quantity: item.quantity,
         cost_price,
         selling_price,
+        printing: item.printing,
         special_instruction: item.special_instruction,
       });
     }
