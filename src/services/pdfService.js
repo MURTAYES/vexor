@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Read the logo as a base64 string so it embeds perfectly in the PDF on all OS
-const LOGO_BASE64 = `data:image/png;base64,${fs.readFileSync(path.resolve(__dirname, '../../frontend/src/assets/logo.png')).toString('base64')}`;
+const LOGO_BASE64 = `data:image/png;base64,${fs.readFileSync(path.resolve(__dirname, '../../frontend/src/assets/horizontal_black.png')).toString('base64')}`;
 
 const styles = StyleSheet.create({
   page: {
@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   logoContainer: {
-    width: 140,
-    marginBottom: 16,
+    width: 220,
+    marginBottom: 0,
   },
   logoImage: {
     width: '100%',
@@ -285,8 +285,7 @@ const InvoiceDocument = ({ order }) => {
           React.createElement(View, null,
             React.createElement(View, { style: styles.logoContainer },
               React.createElement(Image, { src: LOGO_BASE64, style: styles.logoImage })
-            ),
-            React.createElement(Text, { style: styles.invoiceTitle }, 'INVOICE')
+            )
           ),
           React.createElement(View, { style: styles.headerRight },
             React.createElement(Text, { style: styles.txnBadge }, `TXN: #${order.invoice_number}`),
