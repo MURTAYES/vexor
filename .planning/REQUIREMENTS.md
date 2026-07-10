@@ -84,21 +84,48 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ## v2 Requirements
 
-Deferred to future release. Tracked but not in current roadmap.
+Requirements for Milestone v2.0: Sales, Pricing & Analytics.
 
-### Image Hosting
+### Per-Size Pricing
 
-- **IMG-01**: Migrate image storage from local to Cloudinary
-- **IMG-02**: Image URL migration script for existing products
+- [ ] **PRICE-01**: Seller can set a cost price (৳) per size when adding a product, instead of one flat base_price
+- [ ] **PRICE-02**: SKU model stores `cost_price` per size record
+- [ ] **PRICE-03**: Product `base_price` field becomes optional/deprecated — pricing authority moves to SKU
+- [ ] **PRICE-04**: Inventory view displays cost price next to each size badge
 
-### Multi-User
+### Restock Management
 
-- **MULTI-01**: Support 1–2 additional staff accounts with shared seller role
+- [ ] **RSTK-01**: Restock action opens a modal/form (replaces the current click-prompt) showing current stock and cost price per size
+- [ ] **RSTK-02**: Seller can update both quantity and cost price for a size during restock
+- [ ] **RSTK-03**: Cost price update on restock only applies to newly added stock (historical line items retain their snapshot cost price)
 
-### Analytics
+### Invoice Selling Price
 
-- **ANLYT-01**: Sales reports by date range
-- **ANLYT-02**: Top-selling products dashboard widget
+- [ ] **SELL-01**: When adding a jersey to an invoice, seller can set a custom selling price (defaults to cost price from SKU)
+- [ ] **SELL-02**: Line item snapshot stores both `cost_price` (from SKU at sale time) and `selling_price` (seller’s input)
+- [ ] **SELL-03**: Server computes line item total as `(selling_price + print_charge) × quantity`
+- [ ] **SELL-04**: Server computes profit per line item as `(selling_price − cost_price) × quantity`
+- [ ] **SELL-05**: Order document stores computed `total_profit` alongside `total`
+
+### Name Printing
+
+- [ ] **PRINT-01**: Invoice builder has a “Add Print” toggle per line item
+- [ ] **PRINT-02**: When print is enabled, seller can enter `print_name` (text) and `print_number` (text)
+- [ ] **PRINT-03**: When print is enabled, seller sets a `print_charge` (৳) that adds to the line item total
+- [ ] **PRINT-04**: Line item snapshot stores `has_print`, `print_name`, `print_number`, `print_charge`
+- [ ] **PRINT-05**: Print details render in invoice PDF (name and number below the jersey line item)
+- [ ] **PRINT-06**: Print charge shown as a separate column or sub-line in the invoice PDF
+
+### Analytics Dashboard
+
+- [ ] **ANLYT-01**: Daily sales line chart showing revenue (total ৳ from confirmed invoices) over a date range
+- [ ] **ANLYT-02**: Date range filter for all analytics widgets (today, last 7 days, last 30 days, custom range)
+- [ ] **ANLYT-03**: Profit bar chart showing daily profit (sum of line item profits) over the selected date range
+- [ ] **ANLYT-04**: Print stats widget — total jerseys with name print and total print charge revenue in the selected range
+- [ ] **ANLYT-05**: Profit summary card — total revenue, total cost, total profit, profit margin percentage
+- [ ] **ANLYT-06**: Filter profit by product, kit type, or season to drill down into profitability
+- [ ] **ANLYT-07**: Analytics API endpoints with MongoDB aggregation pipelines for all dashboard data
+- [ ] **ANLYT-08**: Top-selling products widget — ranked list by quantity sold in selected date range
 
 ## Out of Scope
 
@@ -171,12 +198,39 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-04 | Phase 1 | Pending |
 | INFRA-05 | Phase 1 | Pending |
 | INFRA-06 | Phase 1 | Pending |
+| PRICE-01 | Phase 6 | Pending |
+| PRICE-02 | Phase 6 | Pending |
+| PRICE-03 | Phase 6 | Pending |
+| PRICE-04 | Phase 6 | Pending |
+| RSTK-01 | Phase 7 | Pending |
+| RSTK-02 | Phase 7 | Pending |
+| RSTK-03 | Phase 7 | Pending |
+| SELL-01 | Phase 7 | Pending |
+| SELL-02 | Phase 7 | Pending |
+| SELL-03 | Phase 7 | Pending |
+| SELL-04 | Phase 7 | Pending |
+| SELL-05 | Phase 7 | Pending |
+| PRINT-01 | Phase 8 | Pending |
+| PRINT-02 | Phase 8 | Pending |
+| PRINT-03 | Phase 8 | Pending |
+| PRINT-04 | Phase 8 | Pending |
+| PRINT-05 | Phase 8 | Pending |
+| PRINT-06 | Phase 8 | Pending |
+| ANLYT-01 | Phase 9 | Pending |
+| ANLYT-02 | Phase 9 | Pending |
+| ANLYT-03 | Phase 9 | Pending |
+| ANLYT-04 | Phase 9 | Pending |
+| ANLYT-05 | Phase 9 | Pending |
+| ANLYT-06 | Phase 9 | Pending |
+| ANLYT-07 | Phase 9 | Pending |
+| ANLYT-08 | Phase 9 | Pending |
 
 **Coverage:**
-- v1 requirements: 44 total
-- Mapped to phases: 44
+- v1 requirements: 44 total (Phases 1–5)
+- v2 requirements: 26 total (Phases 6–9)
+- Total mapped: 70
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-02*
-*Last updated: 2026-07-02 after initial definition*
+*Last updated: 2026-07-10 after v2.0 milestone requirements*

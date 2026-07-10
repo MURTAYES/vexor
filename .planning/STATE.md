@@ -1,37 +1,37 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-current_phase: 5
-status: completed
-stopped_at: Phase 5 context gathered
-last_updated: "2026-07-09T06:59:59.621Z"
-last_activity: 2026-07-05
-last_activity_desc: Phase 5 marked complete
+milestone: v2.0
+milestone_name: Sales, Pricing & Analytics
+current_phase: 6
+status: planning
+stopped_at: Milestone v2.0 initialized
+last_updated: "2026-07-10T03:59:00.000Z"
+last_activity: 2026-07-10
+last_activity_desc: Milestone v2.0 started
 progress:
-  total_phases: 6
-  completed_phases: 5
-  total_plans: 15
-  completed_plans: 15
-  percent: 83
-current_phase_name: Server Foundation & Auth
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+current_phase_name: Schema Migration & Per-Size Pricing
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-02)
+See: .planning/PROJECT.md (updated 2026-07-10)
 
 **Core value:** The seller can confirm an invoice and have stock atomically decremented, a PDF generated, and the customer emailed — in one action, without data inconsistency or manual steps.
-**Current focus:** Phase 1 — Server Foundation & Auth
+**Current focus:** Phase 6 — Schema Migration & Per-Size Pricing
 
 ## Current Position
 
-Phase: 5 — COMPLETE
+Phase: 6 — Not started (defining plans)
 Plan: 0 of 0 in current phase
-Status: Phase 5 complete
-Last activity: 2026-07-05 — Phase 5 marked complete
+Status: Defining plans
+Last activity: 2026-07-10 — Milestone v2.0 started
 
 Progress: ░░░░░░░░░░ 0%
 
@@ -63,11 +63,14 @@ Progress: ░░░░░░░░░░ 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Init]: MongoDB is sole inventory authority (not Redis)
-- [Init]: renderToBuffer for PDF (not renderToStream)
-- [Init]: JWT in httpOnly cookie (not localStorage)
-- [Init]: Image upload to local storage for v1 (Cloudinary deferred to v2)
-- [Init]: Brutalist/athletic design with #FF5500 accent
+- [v1]: MongoDB is sole inventory authority (not Redis)
+- [v1]: renderToBuffer for PDF (not renderToStream)
+- [v1]: JWT in httpOnly cookie (not localStorage)
+- [v1]: Image upload to local storage for v1 (Cloudinary deferred)
+- [v1]: Brutalist/athletic design with #FF5500 accent
+- [v2]: Pricing authority moves from Product.base_price to SKU.cost_price
+- [v2]: Line items store both cost_price and selling_price for profit tracking
+- [v2]: Print charge is additive to selling price, not a separate line item
 
 ### Pending Todos
 
@@ -79,7 +82,8 @@ None yet.
 
 ### Roadmap Evolution
 
-- Phase 03.1 inserted after Phase 3: UI Polish (URGENT)
+- v1 Phases 1–5 complete
+- v2 Phases 6–9 defined
 
 ## Deferred Items
 
@@ -87,10 +91,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Image Hosting | Migrate to Cloudinary (IMG-01, IMG-02) | Deferred | v1.0 |
+| Multi-User | Staff accounts (MULTI-01) | Deferred | v1.0 |
 
 ## Session Continuity
 
-Last session: 2026-07-05T04:03:08.349Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-integration-polish/05-CONTEXT.md
+Last session: 2026-07-10T03:59:00.000Z
+Stopped at: Milestone v2.0 initialized
+Resume file: —

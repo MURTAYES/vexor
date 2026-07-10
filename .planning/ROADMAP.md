@@ -2,111 +2,80 @@
 
 ## Overview
 
-Vexor is built in 5 phases: server foundation and auth, then core inventory and invoicing APIs, the full React frontend, PDF and email pipeline, and finally polish and integration testing. Backend APIs are built first, then the frontend consumes them. PDF/email is added after the UI is functional — the invoice confirmation flow works without email initially.
+Vexor v2 builds on the existing inventory/invoicing system to add profit-aware sales capabilities. The milestone is built in 4 phases: schema migration and per-size pricing APIs, restock and selling price features, name printing integration, and finally the analytics dashboard. Backend changes come first (schema + API), then frontend follows.
 
 ## Phases
 
 **Phase Numbering:**
 
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+- Continues from v1 (Phase 5 was the last v1 phase)
+- Integer phases (6, 7, 8, 9): Planned milestone work
 
-Decimal phases appear between their surrounding integers in numeric order.
-
-- [ ] **Phase 1: Server Foundation & Auth** - Express scaffold, MongoDB/Redis connections, Mongoose models, auth flow, product/SKU read APIs, cache-aside infrastructure
-- [ ] **Phase 2: Inventory & Order APIs** - Product creation with initial stock, restock, atomic stock decrement transaction, order confirmation, void, and order queries
-- [ ] **Phase 3: React Frontend** - Vite + Tailwind scaffold, auth flow, inventory pages, invoice builder with jersey popup, invoice list/detail, dashboard
-- [ ] **Phase 4: PDF & Email Pipeline** - @react-pdf/renderer invoice component, renderToBuffer service, PDF delivery on order confirmation, Nodemailer pool with fire-and-forget dispatch, resend email
-- [ ] **Phase 5: Integration & Polish** - End-to-end flows, concurrent stock race testing, low-stock badges, error handling for all 409/500 states, email delivery visibility
+- [ ] **Phase 6: Schema Migration & Per-Size Pricing** — Migrate pricing from Product.base_price to SKU.cost_price, update product creation APIs to accept per-size pricing, update inventory views
+- [ ] **Phase 7: Restock Modal & Selling Price** — Replace click-to-restock with a modal for editing stock + cost price, add custom selling price field to invoice builder, update order processing for profit calculation
+- [ ] **Phase 8: Name Printing** — Add print toggle, name/number fields, and print charge to invoice builder and order processing, update PDF to render print details
+- [ ] **Phase 9: Analytics Dashboard** — Build aggregation API endpoints, daily sales chart, profit bar chart, print stats widget, profit summary, filters, top-selling products
 
 ## Phase Details
 
-### Phase 1: Server Foundation & Auth
+### Phase 6: Schema Migration & Per-Size Pricing
 
-**Goal**: A running Express server with authenticated routes, database connections, Mongoose models, and read-only product/SKU APIs — the foundation everything else builds on
-**Depends on**: Nothing (first phase)
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, PROD-07, INV-02, INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06
+**Goal**: Migrate pricing authority from Product.base_price to SKU.cost_price so each size can have its own cost price, and update the product creation flow to accept per-size pricing
+**Depends on**: v1 complete
+**Requirements**: PRICE-01, PRICE-02, PRICE-03, PRICE-04
 **Success Criteria** (what must be TRUE):
 
-  1. Seller can log in with seeded credentials and receive an httpOnly JWT cookie
-  2. Seller can log out and subsequent requests with the same token are rejected (Redis denylist)
-  3. Authenticated GET /api/products returns paginated product list from MongoDB (cache-aside operational)
-  4. Authenticated GET /api/products/search returns text-search results
-  5. Authenticated GET /api/products/:id/skus returns stock-by-size for a product
+  1. SKU model has a `cost_price` field; seller can set different cost prices per size when adding a product
+  2. Product `base_price` is deprecated — the AddProduct form collects price per size, not one flat price
+  3. Inventory view shows cost price next to each size badge
+  4. Existing v1 data is handled gracefully (migration or fallback for SKUs without cost_price)
 
 **Plans**: TBD
 
-### Phase 2: Inventory & Order APIs
+### Phase 7: Restock Modal & Selling Price
 
-**Goal**: Complete write APIs for products, SKUs, and orders — including the critical atomic stock decrement transaction and void/restore flow
-**Depends on**: Phase 1
-**Requirements**: PROD-01, PROD-02, PROD-03, PROD-04, PROD-05, PROD-06, INV-01, INV-03, ORD-01, ORD-02, ORD-03, ORD-04, ORD-09
+**Goal**: Replace the click-to-restock flow with a proper modal for editing stock and cost price, and add custom selling price to the invoice builder with server-side profit calculation
+**Depends on**: Phase 6
+**Requirements**: RSTK-01, RSTK-02, RSTK-03, SELL-01, SELL-02, SELL-03, SELL-04, SELL-05
 **Success Criteria** (what must be TRUE):
 
-  1. Seller can create a new product with initial stock per size, and SKU IDs are auto-generated in the correct format
-  2. Duplicate product creation returns a friendly 409 error
-  3. Seller can restock an existing SKU and the stock_available increments
-  4. POST /api/orders atomically decrements stock for all line items and returns an invoice number in VX-YYYYMMDD-NNN format
-  5. A stock conflict returns 409 with the specific SKU, size, and remaining stock count
-  6. PATCH /api/orders/:id/void restores stock for all line items and marks the order as void
+  1. Clicking restock opens a modal showing current stock and cost price per size; seller can update both quantity and cost price
+  2. Cost price changes on restock do NOT retroactively affect historical order line items (snapshot integrity preserved)
+  3. Invoice builder shows a selling price input (defaulting to SKU cost_price); seller can override it
+  4. Line item snapshot stores both `cost_price` and `selling_price`; server computes `total_profit` on the order
+  5. Server recomputes totals using `selling_price` (not old `base_price`)
 
 **Plans**: TBD
 
-### Phase 3: React Frontend
+### Phase 8: Name Printing
 
-**Goal**: A complete React frontend that lets the seller log in, manage inventory, build invoices with the jersey popup, and view invoice history — wired to all backend APIs
-**Depends on**: Phase 2
-**Requirements**: BLDR-01, BLDR-02, BLDR-03, BLDR-04, BLDR-05, BLDR-06, BLDR-07, BLDR-08, BLDR-09, VIEW-01, VIEW-02, VIEW-04, VIEW-05, VIEW-06
+**Goal**: Add name printing option to the invoice builder — toggle, name/number fields, print charge — and render print details in the invoice PDF
+**Depends on**: Phase 7
+**Requirements**: PRINT-01, PRINT-02, PRINT-03, PRINT-04, PRINT-05, PRINT-06
 **Success Criteria** (what must be TRUE):
 
-  1. Seller can log in and is redirected to the dashboard; auth state persists across page refreshes
-  2. Seller can view the inventory list with filters (kit type, version, season, active status) and keyword search
-  3. Seller can add a new product with image pre-upload and initial stock per size
-  4. Seller can open the jersey popup, search products, select a size (out-of-stock chips are disabled), set quantity (max enforced), write a special instruction, and add to invoice
-  5. Seller can fill customer fields, manage line items, and confirm the invoice — receiving a JSON response (PDF delivery added in Phase 4)
-  6. Seller can view the invoice list and click into an invoice detail page showing all line item snapshots
-
-**Plans**: TBD
-**UI hint**: yes
-
-### Phase 03.1: UI Polish (INSERTED)
-
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
-**Depends on:** Phase 3
-**Plans:** 0 plans
-
-Plans:
-
-- [ ] TBD (run /gsd-plan-phase 03.1 to break down)
-
-### Phase 4: PDF & Email Pipeline
-
-**Goal**: Invoice confirmation generates a PDF buffer and serves it to the seller; if the customer has an email, the PDF is sent as an attachment without blocking the response
-**Depends on**: Phase 3
-**Requirements**: ORD-05, ORD-06, ORD-07, ORD-08, ORD-10, PDF-01, PDF-02, PDF-03
-**Success Criteria** (what must be TRUE):
-
-  1. POST /api/orders returns a PDF binary with correct Content-Disposition header and filename format
-  2. The PDF renders shop name, invoice number, date, customer details, line item table with jersey images, and total in ৳
-  3. Special instructions render in a distinct styled box (amber background, left border accent, italic) in the PDF
-  4. If customer email is provided, email is sent asynchronously and email_sent_at / email_error are tracked on the order
-  5. Seller can resend email from an existing order via POST /api/orders/:id/resend-email
+  1. Invoice builder has an "Add Print" toggle per line item; when enabled, name, number, and print charge fields appear
+  2. Print charge is added to the line item total (`(selling_price + print_charge) × quantity`)
+  3. Line item snapshot stores `has_print`, `print_name`, `print_number`, `print_charge`
+  4. Invoice PDF renders print name and number below the jersey line item, and print charge appears as a separate column or sub-line
+  5. Toggling print off clears the print fields and removes the charge
 
 **Plans**: TBD
 
-### Phase 5: Integration & Polish
+### Phase 9: Analytics Dashboard
 
-**Goal**: End-to-end integration testing, dashboard metrics, low-stock indicators, error state handling, and concurrent stock race validation
-**Depends on**: Phase 4
-**Requirements**: INV-04, INV-05, VIEW-03
+**Goal**: Build a comprehensive analytics dashboard with daily sales graph, profit bar chart, print stats, profit summary, and multi-filter drill-down — all powered by MongoDB aggregation pipelines
+**Depends on**: Phase 8
+**Requirements**: ANLYT-01, ANLYT-02, ANLYT-03, ANLYT-04, ANLYT-05, ANLYT-06, ANLYT-07, ANLYT-08
 **Success Criteria** (what must be TRUE):
 
-  1. Dashboard displays today's invoice count, low-stock alert count, and total SKU count
-  2. Low-stock badge (≤ 3 units) appears on inventory list and dashboard
-  3. Out-of-stock items show a visual flag in the inventory grid
-  4. All 409 stock conflicts and 500 server errors surface meaningful inline messages in the UI
-  5. Two concurrent invoice confirmations racing for the last unit result in one success and one 409 — no oversell
+  1. Dashboard shows a daily sales line chart (revenue) for the selected date range
+  2. Date range filter works across all widgets (today, last 7 days, last 30 days, custom range)
+  3. Profit bar chart shows daily profit (selling - cost) over the selected range
+  4. Print stats widget displays total jerseys with name print and total print charge revenue
+  5. Profit summary card shows total revenue, total cost, total profit, and profit margin %
+  6. Seller can filter profit analysis by product, kit type, or season
+  7. Top-selling products widget shows a ranked list by quantity sold
 
 **Plans**: TBD
 **UI hint**: yes
@@ -114,12 +83,11 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 6 → 7 → 8 → 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------| 
-| 1. Server Foundation & Auth | 0/0 | Not started | - |
-| 2. Inventory & Order APIs | 0/0 | Not started | - |
-| 3. React Frontend | 0/0 | Not started | - |
-| 4. PDF & Email Pipeline | 0/0 | Not started | - |
-| 5. Integration & Polish | 0/0 | Not started | - |
+| 6. Schema Migration & Per-Size Pricing | 0/0 | Not started | - |
+| 7. Restock Modal & Selling Price | 0/0 | Not started | - |
+| 8. Name Printing | 0/0 | Not started | - |
+| 9. Analytics Dashboard | 0/0 | Not started | - |

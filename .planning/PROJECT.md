@@ -8,6 +8,17 @@ Vexor is a single-tenant, internal ERP for a football jersey retailer operating 
 
 The seller can confirm an invoice and have stock atomically decremented, a PDF generated, and the customer emailed — in one action, without data inconsistency or manual steps.
 
+## Current Milestone: v2.0 Sales, Pricing & Analytics
+
+**Goal:** Transform Vexor from an inventory/invoicing tool into a profit-aware sales system with per-size pricing, custom selling prices, name printing charges, and a comprehensive analytics dashboard.
+
+**Target features:**
+- Per-size pricing — each size (XS–XXL) has its own cost price on the SKU instead of one flat base_price on Product
+- Restock with price editing — replace click-to-restock with a modal where seller can update quantity AND cost price per size
+- Custom selling price on invoice — seller sets selling price per line item; profit = selling_price − cost_price
+- Name printing option — toggle for print name/number with a print charge added to line item total
+- Analytics dashboard — daily sales graph, profit bar chart, jersey-with-print count, multi-filter profit analysis
+
 ## Business Context
 
 - **Customer**: Solo football jersey retailer (Bangladeshi market, BDT currency)
@@ -121,4 +132,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-02 after initialization*
+*Last updated: 2026-07-10 after v2.0 milestone start*
