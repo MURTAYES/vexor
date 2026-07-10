@@ -9,7 +9,7 @@ const LOGO_BASE64 = `data:image/png;base64,${fs.readFileSync(path.resolve(__dirn
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 30,
     fontSize: 10,
     fontFamily: 'Helvetica',
     color: '#000000',
@@ -21,26 +21,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     paddingRight: 8,
     paddingBottom: 8,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   shadow4: {
     backgroundColor: '#E5E5E5',
     paddingRight: 4,
     paddingBottom: 4,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   shadow4Black: {
     backgroundColor: '#000000',
     paddingRight: 4,
     paddingBottom: 4,
-    marginBottom: 24,
+    marginBottom: 16,
   },
 
   // 1. Header Box
   headerBox: {
     backgroundColor: '#FFFFFF',
     border: '4px solid #000000',
-    padding: 24,
+    padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   customerBox: {
     backgroundColor: '#FFFFFF',
     border: '2px solid #000000',
-    padding: 24,
+    padding: 16,
   },
   customerBadge: {
     backgroundColor: '#000000',
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     width: '58%',
     backgroundColor: '#FAFAFA',
     border: '2px dashed #000000',
-    padding: 24,
+    padding: 16,
   },
   notesTitle: {
     fontFamily: 'Helvetica-Bold',
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   calcBox: {
     backgroundColor: '#FFFFFF',
     border: '2px solid #000000',
-    padding: 24,
+    padding: 16,
   },
   calcRow: {
     flexDirection: 'row',
